@@ -1,0 +1,55 @@
+//apply plugin: 'com.android.application'
+dependencies {
+    compile 'com.android.support:recyclerview-v7:' + rootProject.ext.supportVersion
+    compile 'com.android.support:appcompat-v7:' + rootProject.ext.supportVersion
+    compile 'com.alibaba:fastjson:1.2.44'
+    compile 'com.squareup.picasso:picasso:2.5.2'
+    compile 'com.github.yhaolpz:FloatWindow:1.0.8'
+    //compile(name: 'weex_sdk-0.18.0', ext: 'aar')
+    //compile 'com.taobao.android:weex_sdk:0.17.0'
+    api 'com.masonliu:weex_sdk_modify:0.18.0.0@aar'
+
+    compile 'com.taobao.android:weex_inspector:0.13.4'
+    compile 'com.squareup.okhttp:okhttp:2.3.0'
+    compile 'com.squareup.okhttp:okhttp-ws:2.3.0'
+    provided 'com.google.code.findbugs:jsr305:2.0.1'
+}
+
+//def adbReverse(String port) {
+//    try {
+//        //Using adb reverse Note that this option is available on devices running android 5.0+ (API 21).
+//        //You must have only one device connected.
+//        project.exec {
+//            workingDir android.getSdkDirectory().toString() + "/platform-tools"
+//            executable "adb"
+//            args "reverse", "tcp:" + port, "tcp:" + port
+//        }
+//    } catch (e) {
+//        println e
+//    }
+//}
+//
+////./gradlew adbReverse -Pport="8081" //adbReverse.execute()
+//task adbReverse << {
+//    adbReverse(port)
+//}
+//preBuild.dependsOn runRNPackager
+
+//http://hugozhu.myalert.info/2014/11/05/52-assemble-aar-with-all-dependencies-with-gradle.html
+
+//apply plugin: 'maven'
+
+//上传到本地
+//tasks.withType(JavaCompile) {
+//    options.encoding = 'UTF-8'
+//}
+//uploadArchives {
+//    repositories {
+//        mavenDeployer {
+//            repository(url: "file://${project.rootDir}\\gradle_plugin\\build\\maven")
+//            pom.version = "1.0.8"
+//            pom.artifactId = "weex"
+//            pom.groupId = "com.masonliu"
+//        }
+//    }
+//}

@@ -1,0 +1,45 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+buildscript {
+    Properties properties = new Properties()
+    properties.load(project.rootProject.file('local.properties').newDataInputStream())
+    properties.keys().each { key -> project.ext.set(key, properties.getProperty(key))
+    }
+    ext {
+        compileSdkVersion = 26
+        buildToolsVersion = "26.0.2"
+        supportVersion = "26.1.0"
+        minSdkVersion = 16 //16-4.1,通过友盟看<4.1的几乎没有了，所以不再兼容，weex也是从16开始支持
+        targetSdkVersion = 22
+        kotlinVersion = '1.1.60'
+    }
+}
+
+buildscript {
+    repositories {
+        jcenter()
+        google()
+        maven { url 'https://maven.google.com' }
+        maven { url "https://jitpack.io" }
+        maven { url "https://github.com/MasonLiuChn/MasonMavenRepository/raw/maven/releases" }
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.0.1'
+        classpath "com.alibaba:arouter-register:1.0.2"
+    }
+}
+
+allprojects {
+    repositories {
+        jcenter()//jcenter()>mavenCentral()
+        mavenCentral()
+        google()
+        maven { url 'https://maven.google.com' }
+        maven { url "https://jitpack.io" }
+        maven { url "https://raw.githubusercontent.com/MasonLiuChn/MasonMavenRepository/maven/releases" }
+
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}

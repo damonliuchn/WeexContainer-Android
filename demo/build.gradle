@@ -1,0 +1,42 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        applicationId "com.masonliu.weex_container_demo"
+        versionCode 1
+        versionName "1.0"
+        buildConfigField("String", "BUILD_IP", buildIP())
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {//支持Java8,AS 3.0/Gradle3.0 使用desujar兼容编译class
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.android.support:appcompat-v7:26.1.0'
+    api project(':lib_weex')
+}
+
+def buildIP() {
+    String defaultIp
+    if (defaultIp == null || defaultIp.length() == 0) {
+        defaultIp = InetAddress.getLocalHost().getHostAddress()
+        if (defaultIp == null || defaultIp.length() == 0) {
+            defaultIp = "10.0.2.3"
+        }
+    }
+    return "\"" + defaultIp + "\""
+}
