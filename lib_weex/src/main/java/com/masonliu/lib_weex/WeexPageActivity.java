@@ -86,7 +86,7 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
         options.put(WXSDKInstance.BUNDLE_URL, mUri);
         //获取缓存文件
         //远程url使用https + 客户端本地证书spinning，防止bundle中间人劫持。
-        if (DebugableUtil.isApkDebugable(this)) {//debug时使用net
+        if (DebugableUtil.isApkDebugable(this)) {//debug时直接使用net
             wrapUrl = mUri;
         } else {
             wrapUrl = WXCacheManager.INSTANCE.getOrCacheUri(mUri);
@@ -206,10 +206,12 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
 
     @Override
     public void onException(WXSDKInstance instance, String errCode, String msg) {
-        if (DebugableUtil.isApkDebugable(getApplicationContext())) {
-            if ("wx_network_error".equals(errCode)) {//网络不通顺 用assets
+        if (!DebugableUtil.isApkDebugable(getApplicationContext())) {
+            if (!TextUtils.isEmpty(wrapUrl) && wrapUrl.contains("http://")) {//网络文件有问题用assets
                 refresh(getAssetsUrl(wrapUrl));
-            } else if (!TextUtils.isEmpty(wrapUrl) && wrapUrl.contains("file://")) {//缓存文件有问题则删除缓存
+            } else if (!TextUtils.isEmpty(wrapUrl)
+                    && wrapUrl.contains("file://")
+                    && !wrapUrl.contains("file://local/weex")) {//缓存文件有问题则删除缓存
                 File cacheFile = new File(wrapUrl.replace("file://", ""));
                 cacheFile.deleteOnExit();
             }

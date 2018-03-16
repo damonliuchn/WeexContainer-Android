@@ -59,7 +59,8 @@ public class LauncherActivity extends Activity {
     private void redirectTo() {
         WeexPageActivity.startFrom(
                 LauncherActivity.this,
-                "file://local/weex/main.js",
+                //"file://local/weex/main.js",
+                "http://172.20.12.26:10004/dist/pages/main.js",
                 null);
         finish();
     }
