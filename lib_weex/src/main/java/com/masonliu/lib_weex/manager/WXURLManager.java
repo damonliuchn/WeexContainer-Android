@@ -1,4 +1,4 @@
-package com.masonliu.lib_weex;
+package com.masonliu.lib_weex.manager;
 
 /**
  * Created by liumeng02 on 2018/1/23.

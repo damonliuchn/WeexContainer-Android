@@ -23,7 +23,7 @@ import android.view.View.OnLayoutChangeListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ScrollView;
 import com.alibaba.fastjson.JSONObject;
-import com.masonliu.lib_weex.WXCacheManager;
+import com.masonliu.lib_weex.manager.WXCacheManager;
 import com.taobao.weex.WXRenderErrorCode.DegradPassivityCode;
 import com.taobao.weex.adapter.IDrawableLoader;
 import com.taobao.weex.adapter.IWXHttpAdapter;

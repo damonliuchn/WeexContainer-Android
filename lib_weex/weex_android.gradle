@@ -3,7 +3,7 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:' + rootProject.ext.supportVersion
     compile 'com.android.support:appcompat-v7:' + rootProject.ext.supportVersion
     compile 'com.alibaba:fastjson:1.2.44'
-    compile 'com.squareup.picasso:picasso:2.5.2'
+    api 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
     compile 'com.github.yhaolpz:FloatWindow:1.0.8'
     //compile(name: 'weex_sdk-0.18.0', ext: 'aar')
     //compile 'com.taobao.android:weex_sdk:0.17.0'

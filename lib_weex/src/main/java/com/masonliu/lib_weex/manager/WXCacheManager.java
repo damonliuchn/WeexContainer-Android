@@ -1,4 +1,4 @@
-package com.masonliu.lib_weex;
+package com.masonliu.lib_weex.manager;
 
 import android.util.Base64;
 

@@ -16,7 +16,7 @@ import android.text.TextUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
-import com.masonliu.lib_weex.WXNavigatorManager;
+import com.masonliu.lib_weex.manager.WXNavigatorManager;
 import com.taobao.weex.WXSDKEngine;
 import com.taobao.weex.annotation.JSMethod;
 import com.taobao.weex.bridge.JSCallback;

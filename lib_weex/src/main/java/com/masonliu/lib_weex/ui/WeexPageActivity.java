@@ -1,4 +1,4 @@
-package com.masonliu.lib_weex;
+package com.masonliu.lib_weex.ui;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -13,6 +13,9 @@ import android.view.Window;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
+import com.masonliu.lib_weex.util.DebugableUtil;
+import com.masonliu.lib_weex.manager.WXCacheManager;
+import com.masonliu.lib_weex.manager.WXURLManager;
 import com.masonliu.lib_weex.generated.R;
 import com.taobao.weex.IWXRenderListener;
 import com.taobao.weex.WXSDKInstance;

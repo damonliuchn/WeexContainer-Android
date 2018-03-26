@@ -7,7 +7,7 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 
-import com.masonliu.lib_weex.WeexPageActivity;
+import com.masonliu.lib_weex.ui.WeexPageActivity;
 import com.masonliu.weex_container_demo.R;
 
 

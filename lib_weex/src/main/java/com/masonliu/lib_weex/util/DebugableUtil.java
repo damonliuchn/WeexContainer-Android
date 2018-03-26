@@ -1,4 +1,4 @@
-package com.masonliu.lib_weex;
+package com.masonliu.lib_weex.util;
 
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
