@@ -23,7 +23,7 @@ import android.view.View.OnLayoutChangeListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ScrollView;
 import com.alibaba.fastjson.JSONObject;
-import com.masonliu.lib_weex.manager.WXCacheManager;
+//import com.masonliu.lib_weex.manager.WXLoadAndCacheManager;
 import com.taobao.weex.WXRenderErrorCode.DegradPassivityCode;
 import com.taobao.weex.adapter.IDrawableLoader;
 import com.taobao.weex.adapter.IWXHttpAdapter;
@@ -1506,7 +1506,7 @@ public class WXSDKInstance implements IWXActivityStateListener, DomContext, OnLa
             WXLogUtils.renderPerformanceLog("networkTime", WXSDKInstance.this.mWXPerformance.networkTime);
             if(response != null && response.originalData != null && TextUtils.equals("200", response.statusCode)) {
                 String template = new String(response.originalData);
-                WXCacheManager.INSTANCE.cache(this.pageName, template, this.options, this.jsonInitData, this.flag);
+                //WXLoadAndCacheManager.INSTANCE.cache(this.pageName, template, this.options, this.jsonInitData, this.flag);
                 WXSDKInstance.this.render(this.pageName, template, this.options, this.jsonInitData, this.flag);
             } else if(TextUtils.equals(DegradPassivityCode.WX_DEGRAD_ERR_BUNDLE_CONTENTTYPE_ERROR.getDegradErrorCode(), response.statusCode)) {
                 WXLogUtils.e("user intercept: WX_DEGRAD_ERR_BUNDLE_CONTENTTYPE_ERROR");

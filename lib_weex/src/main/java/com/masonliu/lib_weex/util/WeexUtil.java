@@ -5,12 +5,13 @@ import android.support.annotation.Nullable;
 import android.view.animation.BounceInterpolator;
 import android.widget.ImageView;
 
+import com.masonliu.lib_weex.generated.R;
 import com.masonliu.lib_weex.manager.WXCommonModuleManager;
-import com.masonliu.lib_weex.module.CommonModule;
+import com.masonliu.lib_weex.manager.WXLoadAndCacheManager;
 import com.masonliu.lib_weex.manager.WXNavigatorManager;
 import com.masonliu.lib_weex.manager.WXURLManager;
-import com.masonliu.lib_weex.generated.R;
 import com.masonliu.lib_weex.manager.WeexImageLoaderManager;
+import com.masonliu.lib_weex.module.CommonModule;
 import com.masonliu.lib_weex.ui.ImageAdapter;
 import com.masonliu.lib_weex.ui.WeexPageActivity;
 import com.taobao.weex.InitConfig;
@@ -25,7 +26,6 @@ public class WeexUtil {
     public static void init(Application application,
                             boolean connectDebuggerOnAppDebug,
                             @Nullable String debuggerHost,
-                            @Nullable WXNavigatorManager.WXNavigatorPushHandler pushHandler,
                             @Nullable IWXImgLoaderAdapter iwxImgLoaderAdapter) {
         if (!WXSDKEngine.isInitialized()) {
             //设置Debugger
@@ -40,9 +40,6 @@ public class WeexUtil {
             }
             InitConfig config = new InitConfig.Builder().setImgAdapter(iwxImgLoaderAdapter).build();
             WXSDKEngine.initialize(application, config);
-
-            //设置pushHandler
-            WXNavigatorManager.INSTANCE.setHandler(pushHandler);
 
             //添加debug按钮
             if (DebugableUtil.isApkDebugable(application)) {
@@ -85,15 +82,28 @@ public class WeexUtil {
         }
     }
 
-    public static void setURLIntercepter(WXURLManager.WXURLHandler handler) {
-        WXURLManager.INSTANCE.setHandler(handler);
-    }
-
     public static void setDebugable(boolean isDebug) {
         DebugableUtil.setIsApkDebug(isDebug);
     }
 
+    public static void setNavigatorPushHandler(WXNavigatorManager.WXNavigatorPushHandler handler) {
+        //设置pushNavigatorHandler
+        WXNavigatorManager.INSTANCE.setHandler(handler);
+    }
+
+    public static void setURLIntercepter(WXURLManager.WXURLHandler handler) {
+        WXURLManager.INSTANCE.setHandler(handler);
+    }
+
     public static void setCommonModuleHandler(WXCommonModuleManager.WXCommonModuleHandler handler) {
         WXCommonModuleManager.INSTANCE.setHandler(handler);
+    }
+
+    public static void setCacheHandler(WXLoadAndCacheManager.WXCacheHandler handler) {
+        WXLoadAndCacheManager.INSTANCE.setCacheHandler(handler);
+    }
+
+    public static void setNetworkHandler(WXLoadAndCacheManager.WXNetworkHandler handler) {
+        WXLoadAndCacheManager.INSTANCE.setNetworkHandler(handler);
     }
 }

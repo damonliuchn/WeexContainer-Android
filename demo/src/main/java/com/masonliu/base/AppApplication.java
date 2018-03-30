@@ -14,13 +14,11 @@ public class AppApplication extends Application {
     public void onCreate() {
         super.onCreate();
         application = this;
-        //强制release模式，方便调试assets内的bundle
-        WeexUtil.setDebugable(false);
+        //WeexUtil.setDebugable(false);
         //初始化  debug server ip
         WeexUtil.init(this,
                 false,
                 BuildConfig.BUILD_IP,
-                null,
                 null
         );
         WeexUtil.setURLIntercepter(url -> {

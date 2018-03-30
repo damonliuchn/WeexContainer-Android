@@ -1,5 +1,7 @@
 # WeexContainer-Android
-一个Android平台上Weex容器
+一个Android平台上Weex容器，实现MPA,Bundle缓存、验签等通用功能。
+
+# Demo
 
 # 功能：
 
@@ -21,15 +23,14 @@ WeexPageActivity.startFrom(
 debug 始终走真实地址
 release 尽量用缓存    缓存（有问题则删除下次走网） 网络（有问题用assets，没问题则缓存）  assets
 
-weex 跳转 native、weex跳转weex
+# 二、weex 跳转 native、weex跳转weex
 拦截url处理 可以校验域名，可以把网络bundle地址转换为assets地址
 
 
-native 发事件weex
 
-weex 调用 native ？？？？commonmodule
+# 三、weex 调用 native ？？？？commonmodule
 
-
+# 四、native通知weex
 监听android返回键bundle
 ```javascript
 const globalEvent = weex.requireModule('globalEvent');
@@ -46,14 +47,14 @@ export default {
 ```
 
 
-
-bundle缓存功能   bundle安全校验？？？？？
+# bundle缓存功能
+bundle缓存功能
 - 网络bundle时，有缓存，用缓存，没有缓存时看是否有网络，有网络时加载后缓存，没有网络用assets里的文件
 
-为了方便调试
-WeexUtil.setDebugable(false);
 
+# bundle 验证签名
 
+# 开启调试器chromedebugger
 chromedebugger 流程
 1、weex debug
 2、http://172.20.12.26:8088
@@ -61,5 +62,9 @@ chromedebugger 流程
 4、此时chrome 出现手机设备
 5、点击 debugger
 
+# USAGE
 
+# connect
+
+# linsense
 

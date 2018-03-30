@@ -13,10 +13,11 @@ import android.view.Window;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
-import com.masonliu.lib_weex.util.DebugableUtil;
-import com.masonliu.lib_weex.manager.WXCacheManager;
-import com.masonliu.lib_weex.manager.WXURLManager;
 import com.masonliu.lib_weex.generated.R;
+import com.masonliu.lib_weex.manager.WXLoadAndCacheManager;
+import com.masonliu.lib_weex.manager.WXLoadAndCacheManager.WXDownloadListener;
+import com.masonliu.lib_weex.manager.WXURLManager;
+import com.masonliu.lib_weex.util.DebugableUtil;
 import com.taobao.weex.IWXRenderListener;
 import com.taobao.weex.WXSDKInstance;
 import com.taobao.weex.common.IWXDebugProxy;
@@ -92,7 +93,7 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
         if (DebugableUtil.isApkDebugable(this)) {//debug时直接使用net
             wrapUrl = mUri;
         } else {
-            wrapUrl = WXCacheManager.INSTANCE.getOrCacheUri(mUri);
+            wrapUrl = WXLoadAndCacheManager.INSTANCE.getOrCacheUri(mUri);
         }
         refresh(wrapUrl);
         registerBroadcastReceiver();
@@ -203,8 +204,31 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
 
     }
 
+    /**
+     * file://local/weex
+     * file://xx
+     * https://xxx or http://
+     *
+     * @param url
+     */
     public void refresh(String url) {
-        mWXSDKInstance.renderByUrl(PAGE_NAME, url, options, null, WXRenderStrategy.APPEND_ASYNC);
+        if (url.startsWith("http")) {
+            WXLoadAndCacheManager.INSTANCE.download(url,
+                    new WXDownloadListener() {
+
+                        @Override
+                        public void onSuccess(String localUrl) {
+                            mWXSDKInstance.renderByUrl(PAGE_NAME, localUrl, options, null, WXRenderStrategy.APPEND_ASYNC);
+                        }
+
+                        @Override
+                        public void onFailed() {
+                            onException(mWXSDKInstance, "-1000", "Download Failed");
+                        }
+                    });
+        } else {
+            mWXSDKInstance.renderByUrl(PAGE_NAME, url, options, null, WXRenderStrategy.APPEND_ASYNC);
+        }
     }
 
     @Override
