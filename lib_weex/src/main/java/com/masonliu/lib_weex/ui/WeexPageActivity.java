@@ -17,7 +17,7 @@ import com.masonliu.lib_weex.generated.R;
 import com.masonliu.lib_weex.manager.WXLoadAndCacheManager;
 import com.masonliu.lib_weex.manager.WXLoadAndCacheManager.WXDownloadListener;
 import com.masonliu.lib_weex.manager.WXURLManager;
-import com.masonliu.lib_weex.util.DebugableUtil;
+import com.masonliu.lib_weex.util.CommonUtil;
 import com.taobao.weex.IWXRenderListener;
 import com.taobao.weex.WXSDKInstance;
 import com.taobao.weex.common.IWXDebugProxy;
@@ -90,7 +90,7 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
         options.put(WXSDKInstance.BUNDLE_URL, mUri);
         //获取缓存文件
         //远程url使用https + 客户端本地证书spinning，防止bundle中间人劫持。
-        if (DebugableUtil.isApkDebugable(this)) {//debug时直接使用net
+        if (CommonUtil.isApkDebugable(this)) {//debug时直接使用net
             wrapUrl = mUri;
         } else {
             wrapUrl = WXLoadAndCacheManager.INSTANCE.getOrCacheUri(mUri);
@@ -233,7 +233,7 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
 
     @Override
     public void onException(WXSDKInstance instance, String errCode, String msg) {
-        if (!DebugableUtil.isApkDebugable(getApplicationContext())) {
+        if (!CommonUtil.isApkDebugable(getApplicationContext())) {
             if (!TextUtils.isEmpty(wrapUrl) && wrapUrl.contains("http://")) {//网络文件有问题用assets
                 refresh(getAssetsUrl(wrapUrl));
             } else if (!TextUtils.isEmpty(wrapUrl)

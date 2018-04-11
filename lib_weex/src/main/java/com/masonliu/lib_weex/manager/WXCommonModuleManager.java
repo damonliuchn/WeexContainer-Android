@@ -1,6 +1,7 @@
 package com.masonliu.lib_weex.manager;
 
 import com.masonliu.lib_weex.module.CommonModule;
+import com.squareup.okhttp.OkHttpClient;
 import com.taobao.weex.WXSDKInstance;
 
 /**
@@ -9,6 +10,18 @@ import com.taobao.weex.WXSDKInstance;
 public enum WXCommonModuleManager {
     INSTANCE;
     private WXCommonModuleHandler handler;
+    private OkHttpClient okHttpClient;
+
+    public OkHttpClient getOkHttpClient() {
+        if (okHttpClient == null) {
+            okHttpClient = new OkHttpClient();
+        }
+        return okHttpClient;
+    }
+
+    public void setOkHttpClient(OkHttpClient okHttpClient) {
+        this.okHttpClient = okHttpClient;
+    }
 
     public void setHandler(WXCommonModuleHandler handler) {
         this.handler = handler;

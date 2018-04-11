@@ -1,18 +1,17 @@
 //apply plugin: 'com.android.application'
 dependencies {
     compile 'com.android.support:recyclerview-v7:' + rootProject.ext.supportVersion
-    compile 'com.android.support:appcompat-v7:' + rootProject.ext.supportVersion
-    compile 'com.alibaba:fastjson:1.2.44'
-    api 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
-    compile 'com.github.yhaolpz:FloatWindow:1.0.8'
-    //compile(name: 'weex_sdk-0.18.0', ext: 'aar')
-    //compile 'com.taobao.android:weex_sdk:0.17.0'
-    api 'com.masonliu:weex_sdk_modify:0.18.0.0@aar'
-
+    compile 'com.masonliu:weex_sdk_modify:0.18.0.0@aar'
     compile 'com.taobao.android:weex_inspector:0.13.4'
+    compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
+    compile 'com.alibaba:fastjson:1.2.44'
+
+    provided 'com.android.support:appcompat-v7:' + rootProject.ext.supportVersion
+    provided 'com.google.code.findbugs:jsr305:2.0.1'
+
+    //weex_sdk 本身不强依赖 okhttp，但weex_inspector 反射引用okhttp,weex_container 依赖okhttp
     compile 'com.squareup.okhttp:okhttp:2.3.0'
     compile 'com.squareup.okhttp:okhttp-ws:2.3.0'
-    provided 'com.google.code.findbugs:jsr305:2.0.1'
 }
 
 //def adbReverse(String port) {
