@@ -83,38 +83,39 @@ public class WXDownloadAsyncTask extends AsyncTask<Void, Void, String> {
     }
 
     private InputStream download(String urlAddress) {
-        URLConnection connection = null;
         InputStream inputStream = null;
         try {
             // 创建URL对象
             URL url = new URL(urlAddress);
             // 打开连接 获取连接对象
-            connection = url.openConnection();
+            URLConnection connection = url.openConnection();
             // 从连接对象中获取网络连接中的输入字节流对象
             inputStream = connection.getInputStream();
             return inputStream;
         } catch (Exception e) {
             e.printStackTrace();
+            CommonUtil.closeQuietly(inputStream);
         }
         return null;
     }
 
     private void cache(final InputStream inputStream, final String url) throws Exception {
         File f = manager.getCacheFile(url);
-        if (!f.exists()) {
-            //使之在头部位置
-            manager.lruMap.put(f.getAbsolutePath(), f.getAbsolutePath());
-            manager.lruMap.get(f.getAbsolutePath());
-            //save
-            CommonUtil.streamTofile(inputStream, f);
-            //delete不在缓存池的bundle
-            File dirFile = new File(WXEnvironment.sApplication.getCacheDir(), WEEX_CACHE_BUNDLE_PATH);
-            if (dirFile.exists() && dirFile.isDirectory()) {
-                File[] cacheFiles = dirFile.listFiles();
-                for (File cacheFile : cacheFiles) {
-                    if (manager.lruMap.get(cacheFile.getAbsolutePath()) == null) {
-                        cacheFile.delete();
-                    }
+        if (f.exists()) {
+            f.delete();
+        }
+        //使之在头部位置
+        manager.lruMap.put(f.getAbsolutePath(), f.getAbsolutePath());
+        manager.lruMap.get(f.getAbsolutePath());
+        //save
+        CommonUtil.streamTofile(inputStream, f);
+        //delete不在缓存池的bundle
+        File dirFile = new File(WXEnvironment.sApplication.getCacheDir(), WEEX_CACHE_BUNDLE_PATH);
+        if (dirFile.exists() && dirFile.isDirectory()) {
+            File[] cacheFiles = dirFile.listFiles();
+            for (File cacheFile : cacheFiles) {
+                if (manager.lruMap.get(cacheFile.getAbsolutePath()) == null) {
+                    cacheFile.delete();
                 }
             }
         }
