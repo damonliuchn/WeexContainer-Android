@@ -1,48 +1,49 @@
 # WeexContainer-Android
 一个Android平台上Weex容器，实现MPA,Bundle缓存、验签等通用功能。
 
-# Demo：
+# 一、Demo：
+http://www.masonliu.com/app/digua/download
+https://github.com/MasonLiuChn/WeexExplorer
 
-# 功能：
-> 一、Native跳转Weex
-二、Weex跳转Weex，实现MPA多页面应用
-三、Weex跳转Native
-四、Weex调用Native
-五、Native通知Weex
-六、Bundle缓存功能
-七、Bundle验证签名
-八、开启调试器ChromeDebugger
-九、新网络模块
+# 二、功能：
+1. Native跳转Weex
+2. Native通知Weex
+3. Weex跳转Weex（实现MPA多页面应用）
+4. Weex跳转、调用Native
+5. Bundle缓存功能
+6. Bundle验证签名
+7. 开启调试器ChromeDebugger
+8. 新网络模块
 
 
-# 一、Native跳转Weex
+### （一）Native跳转Weex
 1. 加载assets/weex下(使用assets方式时，只支持放在assets/weex下)
-2. 加载存储好的文件
-3. 加载assets/weex下文件(使用assets方式时，只支持放在assets/weex下)
+2. 加载存储空间内的文件
+3. 加载网络文件
+    - Release环境下，加载网络文件的顺序是 a.查找缓存文件（有问题则删除）->b. 使用网络文件->c.查找assets
 ```java
 //example
 WeexPageActivity.startFrom(
                 LauncherActivity.this,
                 //"file://local/weex/main.js",
                 //"file://sdcard/xx",
-                "http://172.20.12.26:10004/dist/pages/main.js",
+                "http://192.168.12.20:10004/dist/pages/main.js",
                 null);
 
 ```
-两种形式
-debug 始终走真实地址
-release 尽量用缓存    缓存（有问题则删除下次走网） 网络（有问题用assets，没问题则缓存）  assets
-
-# 二、Weex跳转Weex，实现MPA多页面应用
-拦截url处理 可以校验域名，可以把网络bundle地址转换为assets地址
-
-# 三、Weex跳转Native
-
-# 四、Weex调用Native 
-？？？？commonmodule
-
-# 五、Native通知Weex
-监听android返回键bundle
+### （二）Native通知Weex
+- 1、Weex SDK 本身提供了globalEvent实现Native发事件给Weex，这里以监听Android返回键为例介绍其用法：
+```java
+public void onBackPressed() {
+        if (mWXSDKInstance != null && renderSuccess) {
+            Map<String, Object> params = new HashMap<>();
+            params.put("name", "returnmsg");
+            mWXSDKInstance.fireGlobalEventCallback("androidback", params);
+        } else {
+            super.onBackPressed();
+        }
+    }
+```
 ```javascript
 const globalEvent = weex.requireModule('globalEvent');
 export default {
@@ -56,114 +57,159 @@ export default {
 }
 
 ```
-
-
-# 六、Bundle缓存功能
-bundle缓存功能
-- 网络bundle时，有缓存，用缓存，没有缓存时看是否有网络，有网络时加载后缓存，没有网络用assets里的文件
-
-
-# 七、Bundle验证签名
-借助https
-
-# 八、开启调试器ChromeDebugger
-chromedebugger 流程
-1、weex debug
-2、http://172.20.12.26:8088
-3、启动app
-4、此时chrome 出现手机设备
-5、点击 debugger
-
-# 九、新网络模块
-# 十、Usage
+### （三）Weex跳转Weex，实现MPA多页面应用
+- 1、Weex工程内使用VueRouter做页面跳转，Url为Bundle的网络地址
 ```java
-
-repositories {
-    maven {
-        url "https://jitpack.io"
+const basePath = 'http://192.168.12.20:10004/dist';
+export default [
+    {path: '/', component: basePath + '/pages/index.js'},
+    {path: '/main', component: basePath + '/pages/main.js'}
+];
+...
+router.push('/main')
+```
+- 2、Android工程无需做配置，本SDK会自动开启新Activity加载Bundle
+- 3、使用者想做自定义的跳转配置，则可以使用SDK提供的如下方法：
+```java
+WeexUtil.setNavigatorPushHandler(new WXNavigatorManager.WXNavigatorPushHandler(){
+    public void push(WXSDKInstance mWXSDKInstance, Uri uri, String instanceId){
     }
+});
+
+WeexUtil.setURLIntercepter(url -> {
+            return url;
+});
+```
+
+### （四）Weex跳转、调用Native
+- 1、Weex工程使用如下：
+```javascript
+weex.requireModule("CommonModule").handle('/activity/movieDetail?id=123')
+```
+- 2、Android工程使用如下：
+```java
+WeexUtil.setCommonModuleHandler((content, mWXSDKInstance, commonModule) -> {
+            //我这里使用了ARouter处理Native端的跳转
+            //RouterUtil.go((Activity) mWXSDKInstance.getContext(), content);
+});
+```
+- 3、Weex调用Native时如果是需要返回结果的调用，则需自己实现注册一个Module，编写带有jscallback的方法
+```java
+/*****example jscallback*****/
+@JSMethod(uiThread = false)
+public void nativeHttpGet(String url, JSCallback callback) {}
+```
+
+### （五）Bundle缓存功能
+- 1、SDK提供了默认的Bundle缓存功能
+    - Release环境下，加载网络文件的顺序是 a.查找缓存文件（有问题则删除）->b. 使用网络文件->c.查找assets
+    - 使用LRU实现缓存，对相同url的Bundle实施缓存，默认缓存容量15
+- 2、使用者若想自己实现缓存，可以使用下面方法
+```java
+WeexUtil.setCacheHandler(new WXLoadAndCacheManager.WXCacheHandler(){
+    public void cache(InputStream inputStream, String url){
+    }
+});
+
+```
+
+### （六）Bundle验证签名
+>SDK没有提供默认的验签功能，因为这属于应用方的业务。但SDK提供了拦截Bundle下载的方法，在该方法里开发者可以校验下载Bundle url里https的证书 或者 bundle文件的md5
+```java
+WeexUtil.setNetworkHandler(new WXLoadAndCacheManager.WXNetworkHandler(){
+    public InputStream executeDownload(String url) throws Exception{
+    return null;
+    }
+});
+
+```
+
+### （七）开启调试器ChromeDebugger
+- 1、该SDK集成了weex debug功能，启动SDK时，将下面第二个参数设置为true
+```java
+WeexUtil.init(this,true,BuildConfig.BUILD_IP,null);
+```
+- 2、weex debug
+- 3、在chrome上打开debug server如 http://yourip:8088
+- 4、启动app
+- 5、此时chrome页面上出现了手机设备
+- 6、点击debugger开始调试
+
+### （八）新网络模块
+>网络请求模块除了weex自带的stream，还额外提供了nativeHttpGet方法，使用okhttp做请求，后续会增加post、put、delete等方法
+```javascript
+var commonModule=weex.requireModule("CommonModule");
+commonModule.nativeHttpGet(url,(response)=>{
+            if(!response.ok){
+                reject(response)
+            }else{
+                resolve(response)
+            }
+        }
+);
+```
+# 三、Usage
+### （一）简单用法
+```java
+repositories {
+    maven { url "https://jitpack.io" }
+    maven { url "https://github.com/MasonLiuChn/MasonMavenRepository/raw/maven/releases" }
 }
 dependencies {
-	compile 'com.github.MasonLiuChn:WeexContainer-Android:1.0.0'
+ compile 'com.github.MasonLiuChn:WeexContainer-Android:1.0.0'
 }
 ```
 ```java
- WeexUtil.init(this, false, BuildConfig.BUILD_IP,
-                (url, view, wxImageQuality, wxImageStrategy) -> WXSDKManager.getInstance().postOnUiThread(() -> {
-                    if (view == null || view.getLayoutParams() == null
-                            || view.getLayoutParams().width <= 0 || view.getLayoutParams().height <= 0) {
-                        return;
-                    }
-                    if (TextUtils.isEmpty(url)) {
-                        view.setImageBitmap(null);
-                        return;
-                    }
-                    /**
-                     * image src接收格式为
-                     1、file://xxx
-                     2、http://xxx
-                     3、//xxx     weex-ui中的图片地址是//开头的
-                     当第三种时，控件会根据bundle是否是远程bundle来拼上http:或者file:
-                     */
-                    String temp = url.replace("file://", "http://");
-                    if (temp.endsWith(".gif")) {
-                        Glide.with(view.getContext())
-                                .load(temp)
-                                .into(view);
-                    } else {
-                        YcImageLoaderManager.getInstance().displayMiddleImage(view, temp);
-                    }
-                }, 0)
-        );
-
-        WeexUtil.setURLIntercepter(url -> {
-            if (!AppUtil.isApkDebugable()) {
-                String hostPort = StringUtil.getPatternStr(url, "//.*?/", 2, 1);
-                if (!hostPort.contains("www.masonliu.com")) {
-                    url = url.replace(hostPort, "www.masonliu.com/app/digua");
-                }
-                return Util.wrapVersionBundleUrl(url);
-            }
-            return url;
-        });
-
-        WeexUtil.setCommonModuleHandler((content, mWXSDKInstance, commonModule) -> {
-            RouterUtil.go((Activity) mWXSDKInstance.getContext(), content);
-        });
+ //在Applicaiton里设置
+ WeexUtil.init(this, false, BuildConfig.BUILD_IP,null);
 ```
-
 ```java
 WeexPageActivity.startFrom(
                 LauncherActivity.this,
-                //"file://local/weex/main.js",
-                Util.wrapVersionBundleUrl(url),
+                "http://192.168.12.20:10004/dist/pages/main.js",
                 null);
 ```
 
-
+### （二）高级用法
 ```java
+public static void init(Application application,
+                            boolean connectDebuggerOnAppDebug,
+                            @Nullable String debuggerHost,
+                            @Nullable IWXImgLoaderAdapter iwxImgLoaderAdapter) {
+        
+}
+
+public static void setDebugable(boolean isDebug) {
+        
+}
 
 public static void setNavigatorPushHandler(WXNavigatorManager.WXNavigatorPushHandler handler) {
-        //设置pushNavigatorHandler
-        WXNavigatorManager.INSTANCE.setHandler(handler);
-    }
+        
+}
 
-    public static void setURLIntercepter(WXURLManager.WXURLHandler handler) {
-        WXURLManager.INSTANCE.setHandler(handler);
-    }
+public static void setURLIntercepter(WXURLManager.WXURLHandler handler) {
+        
+}
 
-    public static void setCommonModuleHandler(WXCommonModuleManager.WXCommonModuleHandler handler) {
-        WXCommonModuleManager.INSTANCE.setHandler(handler);
-    }
+public static void setCommonModuleHandler(WXCommonModuleManager.WXCommonModuleHandler handler) {
+        
+}
 
-    public static void setCacheHandler(WXLoadAndCacheManager.WXCacheHandler handler) {
-        WXLoadAndCacheManager.INSTANCE.setCacheHandler(handler);
-    }
+public static void setCacheHandler(WXLoadAndCacheManager.WXCacheHandler handler) {
+        
+}
 
-    public static void setNetworkHandler(WXLoadAndCacheManager.WXNetworkHandler handler) {
-        WXLoadAndCacheManager.INSTANCE.setNetworkHandler(handler);
-    }
+public static void setNetworkHandler(WXLoadAndCacheManager.WXNetworkHandler handler) {
+        
+}
 ```
+
+# 四、Todo
+1. 合并默认bundle下载和nativeHttp的网络库
+2. 对外提供方法可设置okhttpclient
+3. iOS...
+    
+---
 # Contact me:
 
 - Blog:http://www.masonliu.com
