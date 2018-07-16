@@ -16,13 +16,36 @@ import java.util.Map;
 
 public class CommonModule extends WXModule {
 
-    //run ui thread
     @JSMethod(uiThread = true)
     public void handle(String url) {
+        //处理weex发出的操作信息url
         WXCommonModuleManager.INSTANCE.handle(url, this);
     }
 
-    /*****jscallback*****/
+    @JSMethod(uiThread = true)
+    public void handleWithResult(String url, JSCallback callback) {
+        //处理weex发出的操作信息url,带返回值
+        Map<String, Object> map = new HashMap<>();
+        try {
+            map = WXCommonModuleManager.INSTANCE.handle(url, this);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        callback.invoke(map);
+    }
+
+    @JSMethod(uiThread = false)
+    public void handleWithResultInThread(String url, JSCallback callback) {
+        //处理weex发出的操作信息url,带返回值，新开子线程
+        Map<String, Object> map = new HashMap<>();
+        try {
+            map = WXCommonModuleManager.INSTANCE.handle(url, this);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        callback.invoke(map);
+    }
+
     @JSMethod(uiThread = false)
     public void nativeHttpGet(String url, JSCallback callback) {
         Map<String, Object> map = new HashMap<>();
@@ -44,10 +67,4 @@ public class CommonModule extends WXModule {
         }
         callback.invoke(map);
     }
-
-//    //run JS thread
-//    @JSMethod(uiThread = false)
-//    public void fireEventSyncCall() {
-//        //implement your module logic here
-//    }
 }

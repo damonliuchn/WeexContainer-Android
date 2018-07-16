@@ -4,6 +4,8 @@ import com.masonliu.lib_weex.module.CommonModule;
 import com.squareup.okhttp.OkHttpClient;
 import com.taobao.weex.WXSDKInstance;
 
+import java.util.Map;
+
 /**
  * Created by liumeng on 2018/1/23.
  */
@@ -27,13 +29,14 @@ public enum WXCommonModuleManager {
         this.handler = handler;
     }
 
-    public void handle(String content, CommonModule commonModule) {
+    public Map<String, Object> handle(String content, CommonModule commonModule) {
         if (handler != null) {
-            handler.handle(content, commonModule.mWXSDKInstance, commonModule);
+            return handler.handle(content, commonModule.mWXSDKInstance, commonModule);
         }
+        return null;
     }
 
     public interface WXCommonModuleHandler {
-        void handle(String content, WXSDKInstance mWXSDKInstance, CommonModule commonModule);
+        Map<String, Object> handle(String content, WXSDKInstance mWXSDKInstance, CommonModule commonModule);
     }
 }
