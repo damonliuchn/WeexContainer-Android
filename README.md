@@ -85,13 +85,18 @@ WeexUtil.setURLIntercepter(url -> {
 ### （四）Weex跳转、调用Native
 - 1、Weex工程使用如下：
 ```javascript
+//不带回调结果
 weex.requireModule("CommonModule").handle('/activity/movieDetail?id=123')
+//带回调结果
+weex.requireModule("CommonModule").handleWithResult('/activity/movieDetail?id=123',(resultMap)=>{})
+//带回调结果并新开线程执行
+weex.requireModule("CommonModule").handleWithResultInThread('/activity/movieDetail?id=123',(resultMap)=>{})
 ```
 - 2、Android工程使用如下：
 ```java
 WeexUtil.setCommonModuleHandler((content, mWXSDKInstance, commonModule) -> {
             //我这里使用了ARouter处理Native端的跳转
-            //RouterUtil.go((Activity) mWXSDKInstance.getContext(), content);
+            //return RouterUtil.go((Activity) mWXSDKInstance.getContext(), content);
 });
 ```
 - 3、Weex调用Native时如果是需要返回结果的调用，则需自己实现注册一个Module，编写带有jscallback的方法
@@ -157,7 +162,7 @@ repositories {
     maven { url "https://github.com/MasonLiuChn/MasonMavenRepository/raw/maven/releases" }
 }
 dependencies {
- compile 'com.github.MasonLiuChn:WeexContainer-Android:1.0.0'
+ compile 'com.github.MasonLiuChn:WeexContainer-Android:1.0.1'
 }
 ```
 ```java
