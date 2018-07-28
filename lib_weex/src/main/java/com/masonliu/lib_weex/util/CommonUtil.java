@@ -42,9 +42,7 @@ public class CommonUtil {
         if (closeable != null) {
             try {
                 closeable.close();
-            } catch (RuntimeException rethrown) {
-                throw rethrown;
-            } catch (Exception ignored) {
+            } catch (Throwable ignored) {
             }
         }
     }

@@ -5,9 +5,9 @@ buildscript {
     properties.keys().each { key -> project.ext.set(key, properties.getProperty(key))
     }
     ext {
-        compileSdkVersion = 26
-        buildToolsVersion = "26.0.2"
-        supportVersion = "26.1.0"
+        compileSdkVersion = 27
+        buildToolsVersion = "27.0.3"
+        supportVersion = "27.1.0"
         minSdkVersion = 16 //16-4.1,通过友盟看<4.1的几乎没有了，所以不再兼容，weex也是从16开始支持
         targetSdkVersion = 22
         kotlinVersion = '1.1.60'
@@ -16,11 +16,13 @@ buildscript {
 
 buildscript {
     repositories {
-        jcenter()
-        google()
-        maven { url 'https://maven.google.com' }
+        maven { url 'http://maven.aliyun.com/nexus/content/groups/public' }
         maven { url "https://jitpack.io" }
-        maven { url "https://github.com/MasonLiuChn/MasonMavenRepository/raw/maven/releases" }
+        maven { url "https://raw.githubusercontent.com/MasonLiuChn/MasonMavenRepository/maven/releases" }
+        google()
+        jcenter()//jcenter()>mavenCentral()
+        maven { url 'https://maven.google.com' }
+        mavenCentral()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.0.1'
@@ -30,12 +32,13 @@ buildscript {
 
 allprojects {
     repositories {
-        jcenter()//jcenter()>mavenCentral()
-        mavenCentral()
-        google()
-        maven { url 'https://maven.google.com' }
+        maven { url 'http://maven.aliyun.com/nexus/content/groups/public' }
         maven { url "https://jitpack.io" }
         maven { url "https://raw.githubusercontent.com/MasonLiuChn/MasonMavenRepository/maven/releases" }
+        google()
+        jcenter()//jcenter()>mavenCentral()
+        maven { url 'https://maven.google.com' }
+        mavenCentral()
 
     }
 }

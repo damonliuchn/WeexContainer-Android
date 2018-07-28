@@ -1,6 +1,7 @@
 package com.masonliu.lib_weex.module;
 
 import com.masonliu.lib_weex.manager.WXCommonModuleManager;
+import com.masonliu.lib_weex.manager.WXLoadAndCacheManager;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 import com.taobao.weex.annotation.JSMethod;
@@ -51,7 +52,7 @@ public class CommonModule extends WXModule {
         Map<String, Object> map = new HashMap<>();
         try {
             Request request = new Request.Builder().url(url).build();
-            Response response = WXCommonModuleManager.INSTANCE.getOkHttpClient().newCall(request).execute();
+            Response response = WXLoadAndCacheManager.INSTANCE.getOkHttpClient().newCall(request).execute();
             map.put("status", response.code());
             map.put("data", response.body().string());
             if (response.isSuccessful()) {

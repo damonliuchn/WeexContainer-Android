@@ -6,6 +6,8 @@ import android.text.TextUtils;
 
 import com.masonliu.lib_weex.manager.WXLoadAndCacheManager;
 import com.masonliu.lib_weex.util.CommonUtil;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
 import com.taobao.weex.WXEnvironment;
 
 import java.io.File;
@@ -48,19 +50,10 @@ public class WXDownloadAsyncTask extends AsyncTask<Void, Void, String> {
     protected String doInBackground(Void... params) {
         String cacheUrl = null;
         try {
-            InputStream inputStream = null;
             //download
-            if (manager.networkHandler == null) {
-                inputStream = download(url);
-            } else {
-                inputStream = manager.networkHandler.executeDownload(url);
-            }
+            InputStream inputStream = download(url);
             //cache
-            if (manager.cacheHandler == null) {
-                cache(inputStream, url);
-            } else {
-                manager.cacheHandler.cache(inputStream, url);
-            }
+            cache(inputStream, url);
             cacheUrl = manager.getOrCacheUri(url);
             if (cacheUrl.startsWith("http")) {
                 cacheUrl = null;
@@ -87,10 +80,15 @@ public class WXDownloadAsyncTask extends AsyncTask<Void, Void, String> {
         try {
             // 创建URL对象
             URL url = new URL(urlAddress);
-            // 打开连接 获取连接对象
-            URLConnection connection = url.openConnection();
-            // 从连接对象中获取网络连接中的输入字节流对象
-            inputStream = connection.getInputStream();
+//            // 打开连接 获取连接对象
+//            URLConnection connection = url.openConnection();
+//            connection.setConnectTimeout(10000);
+//            connection.setReadTimeout(10000);
+//            // 从连接对象中获取网络连接中的输入字节流对象
+//            inputStream = connection.getInputStream();
+            Request request = new Request.Builder().url(url).build();
+            Response response = WXLoadAndCacheManager.INSTANCE.getOkHttpClient().newCall(request).execute();
+            inputStream = response.body().byteStream();
             return inputStream;
         } catch (Exception e) {
             e.printStackTrace();

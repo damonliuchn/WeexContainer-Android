@@ -16,7 +16,7 @@ import android.text.TextUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
-import com.masonliu.lib_weex.manager.WXNavigatorManager;
+import com.masonliu.lib_weex.ui.WeexPageActivity;
 import com.taobao.weex.WXSDKEngine;
 import com.taobao.weex.annotation.JSMethod;
 import com.taobao.weex.bridge.JSCallback;
@@ -124,7 +124,7 @@ public class WXNavigatorModule extends WXModule {
 //                    intent.addCategory("com.taobao.android.intent.category.WEEX");
 //                    intent.putExtra("instanceId", this.mWXSDKInstance.getInstanceId());
 //                    this.mWXSDKInstance.getContext().startActivity(intent);
-                    WXNavigatorManager.INSTANCE.push(mWXSDKInstance,builder.build(),mWXSDKInstance.getInstanceId());
+                    WeexPageActivity.startFrom(mWXSDKInstance.getContext(), builder.build().toString(), mWXSDKInstance.getInstanceId());
                     if(callback != null) {
                         callback.invoke("WX_SUCCESS");
                     }

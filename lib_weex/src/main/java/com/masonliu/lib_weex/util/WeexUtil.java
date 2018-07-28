@@ -5,11 +5,11 @@ import android.support.annotation.Nullable;
 
 import com.masonliu.lib_weex.manager.WXCommonModuleManager;
 import com.masonliu.lib_weex.manager.WXLoadAndCacheManager;
-import com.masonliu.lib_weex.manager.WXNavigatorManager;
 import com.masonliu.lib_weex.manager.WXURLManager;
 import com.masonliu.lib_weex.manager.WeexImageLoaderManager;
 import com.masonliu.lib_weex.module.CommonModule;
 import com.masonliu.lib_weex.ui.ImageAdapter;
+import com.squareup.okhttp.OkHttpClient;
 import com.taobao.weex.InitConfig;
 import com.taobao.weex.WXEnvironment;
 import com.taobao.weex.WXSDKEngine;
@@ -62,24 +62,15 @@ public class WeexUtil {
         CommonUtil.setIsApkDebug(isDebug);
     }
 
-    public static void setNavigatorPushHandler(WXNavigatorManager.WXNavigatorPushHandler handler) {
-        //设置pushNavigatorHandler
-        WXNavigatorManager.INSTANCE.setHandler(handler);
-    }
-
     public static void setURLIntercepter(WXURLManager.WXURLHandler handler) {
         WXURLManager.INSTANCE.setHandler(handler);
     }
 
+    public static void setOkHttpClient(OkHttpClient okHttpClient) {
+        WXLoadAndCacheManager.INSTANCE.setOkHttpClient(okHttpClient);
+    }
+
     public static void setCommonModuleHandler(WXCommonModuleManager.WXCommonModuleHandler handler) {
         WXCommonModuleManager.INSTANCE.setHandler(handler);
-    }
-
-    public static void setCacheHandler(WXLoadAndCacheManager.WXCacheHandler handler) {
-        WXLoadAndCacheManager.INSTANCE.setCacheHandler(handler);
-    }
-
-    public static void setNetworkHandler(WXLoadAndCacheManager.WXNetworkHandler handler) {
-        WXLoadAndCacheManager.INSTANCE.setNetworkHandler(handler);
     }
 }

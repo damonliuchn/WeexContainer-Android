@@ -24,6 +24,7 @@ import com.taobao.weex.common.IWXDebugProxy;
 import com.taobao.weex.common.WXRenderStrategy;
 
 import java.io.File;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,7 +38,6 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
     private ProgressBar mProgress;
     private String mUri;
     private String mWXSDKInstanceId;
-    private String wrapUrl;
     private RefreshBroadcastReceiver mReceiver;
     private boolean renderSuccess;
     private Map<String, Object> options;
@@ -88,16 +88,23 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
          */
         options = new HashMap<>();
         options.put(WXSDKInstance.BUNDLE_URL, mUri);
-        //获取缓存文件
-        //远程url使用https + 客户端本地证书spinning，防止bundle中间人劫持。
-        if (CommonUtil.isApkDebugable(this)) {//debug时直接使用net
-            wrapUrl = mUri;
-        } else {
-            wrapUrl = WXLoadAndCacheManager.INSTANCE.getOrCacheUri(mUri);
-        }
-        refresh(wrapUrl);
+        init();
         registerBroadcastReceiver();
     }
+
+    private void init(){
+        //获取缓存文件
+        String wrapUrl=mUri;//debug时直接使用net,远程url使用https + 客户端本地证书spinning，防止bundle中间人劫持。
+        if (!CommonUtil.isApkDebugable(this)) {
+            //查找缓存文件
+            wrapUrl = WXLoadAndCacheManager.INSTANCE.getOrCacheUri(mUri);
+            //查找asset文件
+            wrapUrl = getOrAssetsUri(wrapUrl);
+            //如果都没找到则去http下载
+        }
+        refresh(wrapUrl);
+    }
+
 
     private void registerBroadcastReceiver() {
         mReceiver = new RefreshBroadcastReceiver();
@@ -131,6 +138,31 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
             e.printStackTrace();
         }
         return "";
+    }
+
+    private String getOrAssetsUri(String httpUrl){
+        if(httpUrl.contains("http://")){
+            String assetsUrl = getAssetsUrl(httpUrl);
+            boolean assetsFileExist = false;
+            InputStream in = null;
+            try
+            {
+                in = getResources().getAssets().open(assetsUrl.replace("file://local/", ""));
+                assetsFileExist = true;
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+            finally
+            {
+                CommonUtil.closeQuietly(in);
+            }
+            if(assetsFileExist){
+                return assetsUrl;
+            }
+        }
+        return httpUrl;
     }
 
     @Override
@@ -234,14 +266,10 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
     @Override
     public void onException(WXSDKInstance instance, String errCode, String msg) {
         if (!CommonUtil.isApkDebugable(getApplicationContext())) {
-            if (!TextUtils.isEmpty(wrapUrl) && wrapUrl.contains("http://")) {//网络文件有问题用assets
-                refresh(getAssetsUrl(wrapUrl));
-            } else if (!TextUtils.isEmpty(wrapUrl)
-                    && wrapUrl.contains("file://")
-                    && !wrapUrl.contains("file://local/weex")) {//缓存文件有问题则删除缓存
-                File cacheFile = new File(wrapUrl.replace("file://", ""));
-                cacheFile.deleteOnExit();
-            }
+            //删除缓存文件
+            WXLoadAndCacheManager.INSTANCE.deleteCache(mUri);
+            //使用assets，如果没有则重新加载
+            init();
         }
     }
 
@@ -253,7 +281,7 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
                     IWXDebugProxy.ACTION_DEBUG_INSTANCE_REFRESH.equals(intent.getAction())) {
                 mWXSDKInstance = new WXSDKInstance(WeexPageActivity.this);
                 mWXSDKInstance.registerRenderListener(WeexPageActivity.this);
-                refresh(wrapUrl);
+                init();
             }
         }
     }

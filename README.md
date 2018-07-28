@@ -72,11 +72,6 @@ router.push('/main')
 - 2、Android工程无需做配置，本SDK会自动开启新Activity加载Bundle
 - 3、使用者想做自定义的跳转配置，则可以使用SDK提供的如下方法：
 ```java
-WeexUtil.setNavigatorPushHandler(new WXNavigatorManager.WXNavigatorPushHandler(){
-    public void push(WXSDKInstance mWXSDKInstance, Uri uri, String instanceId){
-    }
-});
-
 WeexUtil.setURLIntercepter(url -> {
             return url;
 });
@@ -108,25 +103,14 @@ public void nativeHttpGet(String url, JSCallback callback) {}
 
 ### （五）Bundle缓存功能
 - 1、SDK提供了默认的Bundle缓存功能
-    - Release环境下，加载网络文件的顺序是 a.查找缓存文件（有问题则删除）->b. 使用网络文件->c.查找assets
+    - Release环境下，加载网络文件的顺序是 a.查找缓存文件（有问题则删除）->b.查找assets ->c.请求网络
     - 使用LRU实现缓存，对相同url的Bundle实施缓存，默认缓存容量15
-- 2、使用者若想自己实现缓存，可以使用下面方法
-```java
-WeexUtil.setCacheHandler(new WXLoadAndCacheManager.WXCacheHandler(){
-    public void cache(InputStream inputStream, String url){
-    }
-});
-
 ```
 
 ### （六）Bundle验证签名
->SDK没有提供默认的验签功能，因为这属于应用方的业务。但SDK提供了拦截Bundle下载的方法，在该方法里开发者可以校验下载Bundle url里https的证书 或者 bundle文件的md5
+>SDK没有提供默认的验签功能，因为这属于应用方的业务。但SDK提供设置OKHTTP的方法，在该方法里开发者可以校验下载Bundle url里https的证书
 ```java
-WeexUtil.setNetworkHandler(new WXLoadAndCacheManager.WXNetworkHandler(){
-    public InputStream executeDownload(String url) throws Exception{
-    return null;
-    }
-});
+WeexUtil.setOkHttpClient(OkHttpClient okHttpClient)
 
 ```
 
@@ -162,7 +146,7 @@ repositories {
     maven { url "https://github.com/MasonLiuChn/MasonMavenRepository/raw/maven/releases" }
 }
 dependencies {
- compile 'com.github.MasonLiuChn:WeexContainer-Android:1.0.1'
+ compile 'com.github.MasonLiuChn:WeexContainer-Android:1.0.2'
 }
 ```
 ```java
@@ -189,10 +173,6 @@ public static void setDebugable(boolean isDebug) {
         
 }
 
-public static void setNavigatorPushHandler(WXNavigatorManager.WXNavigatorPushHandler handler) {
-        
-}
-
 public static void setURLIntercepter(WXURLManager.WXURLHandler handler) {
         
 }
@@ -200,20 +180,10 @@ public static void setURLIntercepter(WXURLManager.WXURLHandler handler) {
 public static void setCommonModuleHandler(WXCommonModuleManager.WXCommonModuleHandler handler) {
         
 }
-
-public static void setCacheHandler(WXLoadAndCacheManager.WXCacheHandler handler) {
-        
-}
-
-public static void setNetworkHandler(WXLoadAndCacheManager.WXNetworkHandler handler) {
-        
-}
 ```
 
 # 四、Todo
-1. 合并默认bundle下载和nativeHttp的网络库
-2. 对外提供方法可设置okhttpclient
-3. iOS...
+1. iOS...
     
 ---
 # Contact me:

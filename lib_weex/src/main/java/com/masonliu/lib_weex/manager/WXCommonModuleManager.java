@@ -12,18 +12,6 @@ import java.util.Map;
 public enum WXCommonModuleManager {
     INSTANCE;
     private WXCommonModuleHandler handler;
-    private OkHttpClient okHttpClient;
-
-    public OkHttpClient getOkHttpClient() {
-        if (okHttpClient == null) {
-            okHttpClient = new OkHttpClient();
-        }
-        return okHttpClient;
-    }
-
-    public void setOkHttpClient(OkHttpClient okHttpClient) {
-        this.okHttpClient = okHttpClient;
-    }
 
     public void setHandler(WXCommonModuleHandler handler) {
         this.handler = handler;
