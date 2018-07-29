@@ -183,7 +183,8 @@ public static void setCommonModuleHandler(WXCommonModuleManager.WXCommonModuleHa
 ```
 
 # 四、Todo
-1. iOS...
+1. openBrowser\getSysInfo
+2. iOS...
     
 ---
 # Contact me:

@@ -47,6 +47,7 @@ public class CommonModule extends WXModule {
         callback.invoke(map);
     }
 
+    /** 内置桥接功能 **/
     @JSMethod(uiThread = false)
     public void nativeHttpGet(String url, JSCallback callback) {
         Map<String, Object> map = new HashMap<>();
@@ -67,5 +68,28 @@ public class CommonModule extends WXModule {
             map.put("ok", false);
         }
         callback.invoke(map);
+    }
+
+    @JSMethod(uiThread = true)
+    public void openBrowser(String url) {
+
+    }
+
+    @JSMethod(uiThread = true)
+    public void getSysInfo(String url) {
+//        result.put("DEBUG", "" + BuildConfig.DEBUG);
+//        result.put("APPLICATION_ID", BuildConfig.APPLICATION_ID);
+//        result.put("VERSION_CODE", "" + BuildConfig.VERSION_CODE);
+//        result.put("VERSION_NAME", BuildConfig.VERSION_NAME);
+//        osversion
+//                osname
+//        sdkversion
+//                sdkname
+//                网络类型
+//                        厂商
+//                        型号
+//                                rom名称
+//                                rom版本
+
     }
 }
