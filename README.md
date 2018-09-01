@@ -1,5 +1,12 @@
 # WeexContainer-Android
-一个Android平台上Weex容器，实现MPA,Bundle缓存、验签等通用功能。
+一个Android平台上Weex容器，集成该SDK后，App可以看作是一个Weex的浏览器，只需传入一个打好的vue工程的js文件即可。实现MPA,Bundle缓存、验签等通用功能。
+如：
+```java
+WeexPageActivity.startFrom(
+                LauncherActivity.this,
+                "http://192.168.12.20:10004/dist/pages/main.js",
+                null);
+```
 
 # 一、Demo：
 http://www.masonliu.com/app/digua/download
