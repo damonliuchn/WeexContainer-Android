@@ -9,7 +9,7 @@ WeexPageActivity.startFrom(
 ```
 
 # 一、Demo：
-http://www.masonliu.com/app/digua/download
+http://www.digua.info
 
 https://github.com/MasonLiuChn/WeexExplorer
 
