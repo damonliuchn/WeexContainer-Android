@@ -14,6 +14,7 @@ public class AppApplication extends Application {
     public void onCreate() {
         super.onCreate();
         application = this;
+        SharedPre.init(application);
         //WeexUtil.setDebugable(false);
         //初始化  debug server ip
         WeexUtil.init(this,

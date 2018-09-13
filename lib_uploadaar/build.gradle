@@ -1,0 +1,51 @@
+buildscript {
+    repositories {
+        maven { url "https://github.com/MasonLiuChn/MasonMavenRepository/raw/maven/releases" }
+    }
+    dependencies {
+        classpath 'com.masonliu:gmaven:1.0.8'
+    }
+}
+apply plugin: 'java-library'
+
+sourceCompatibility = "1.7"
+targetCompatibility = "1.7"
+
+apply plugin: 'maven'
+
+//上传到本地
+//tasks.withType(JavaCompile) {
+//    options.encoding = 'UTF-8'
+//}
+//uploadArchives {
+//    repositories {
+//        mavenDeployer {
+//            repository(url: "file://${project.rootDir}\\gradle_plugin\\build\\maven")
+//            pom.version = "1.0.8"
+//            pom.artifactId = "weex"
+//            pom.groupId = "com.masonliu"
+//        }
+//    }
+//}
+
+//将aar发布到maven
+apply plugin: 'gmaven'
+
+def coreAarFile = file('libs/weex_sdk-0.18.0.aar')
+artifacts {
+    archives coreAarFile
+}
+
+gmavenGitRepo {
+    organization = 'MasonLiuChn'
+    repository = 'MasonMavenRepository'
+    branch = 'maven'
+    type = 'releases'
+}
+
+gmavenLibrary {
+    group = 'com.masonliu'
+    artifactId = 'weex_sdk_modify'
+    version = '0.18.0.1'
+    description = "description"
+}

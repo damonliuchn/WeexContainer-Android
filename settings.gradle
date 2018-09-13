@@ -1,1 +1,1 @@
-include  ':lib_weex', ':demo'
+include  ':lib_weex', ':demo',':lib_uploadaar'

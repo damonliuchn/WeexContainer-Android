@@ -148,6 +148,13 @@ commonModule.nativeHttpGet(url,(response)=>{
 # 三、Usage
 ### （一）简单用法
 ```java
+android {
+    defaultConfig {
+        ndk{
+            abiFilters "armeabi"
+        }
+    }
+}
 repositories {
     maven { url "https://jitpack.io" }
     maven { url "https://github.com/MasonLiuChn/MasonMavenRepository/raw/maven/releases" }
