@@ -28,6 +28,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import com.taobao.weex.bridge.JSCallback;
 
 public class WeexPageActivity extends AppCompatActivity implements IWXRenderListener {
     private static final String PAGE_NAME = "WXMason";

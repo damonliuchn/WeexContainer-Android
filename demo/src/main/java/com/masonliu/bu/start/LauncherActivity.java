@@ -2,16 +2,19 @@ package com.masonliu.bu.start;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.view.animation.Animation.AnimationListener;
+import android.widget.EditText;
 
+import com.masonliu.base.SharedPre;
 import com.masonliu.lib_weex.ui.WeexPageActivity;
 import com.masonliu.weex_container_demo.R;
 
 
 public class LauncherActivity extends Activity {
+    private static final String DEFAULT_VALUE = "http://198.56.12.12:10004/dist/pages/main.js";
     View view;
     private AlphaAnimation start_anima;
 
@@ -21,46 +24,32 @@ public class LauncherActivity extends Activity {
         super.onCreate(savedInstanceState);
         view = View.inflate(this, R.layout.activity_main, null);
         setContentView(view);
-        initView();
-        initData();
-    }
-
-    private void initData() {
-        int duration = 1000;
-        start_anima = new AlphaAnimation(1.0f, 1.0f);
-        start_anima.setDuration(duration);
-        view.startAnimation(start_anima);
-        start_anima.setAnimationListener(new AnimationListener() {
-
+        EditText editText = findViewById(R.id.hostEditText);
+        editText.setText(SharedPre.getString("host", DEFAULT_VALUE));
+        editText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void onAnimationStart(Animation animation) {
-                // TODO Auto-generated method stub
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
             }
 
             @Override
-            public void onAnimationRepeat(Animation animation) {
-                // TODO Auto-generated method stub
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
             }
 
             @Override
-            public void onAnimationEnd(Animation animation) {
-                // TODO Auto-generated method stub
-                redirectTo();
+            public void afterTextChanged(Editable editable) {
+                SharedPre.set("host", editable.toString());
             }
         });
     }
 
-    private void initView() {
 
-    }
-
-    private void redirectTo() {
+    public void open(View view) {
         WeexPageActivity.startFrom(
                 LauncherActivity.this,
                 //"file://local/weex/main.js",
-                "http://172.20.12.26:10004/dist/pages/main.js",
+                SharedPre.getString("host", DEFAULT_VALUE),
                 null);
         finish();
     }

@@ -10,6 +10,11 @@ android {
         versionCode 1
         versionName "1.0"
         buildConfigField("String", "BUILD_IP", buildIP())
+        ndk{
+            abiFilters "armeabi"
+        }
+        //react-native只提供了armeabi-v7a及以上，没有提供armeabi 不优雅的解决方法：https://juejin.im/entry/582303a4bf22ec0068ed7f48
+        //https://www.diycode.cc/topics/691
     }
 
     buildTypes {
@@ -24,10 +29,17 @@ android {
     }
 }
 
+repositories{
+    flatDir {
+        dirs 'libs'
+    }
+}
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.android.support:appcompat-v7:26.1.0'
+    implementation 'com.android.support:appcompat-v7:'+ rootProject.ext.supportVersion
     api project(':lib_weex')
+    //compile(name: 'weex_sdk-0.18.7-beta-1', ext: 'aar')
 }
 
 def buildIP() {
