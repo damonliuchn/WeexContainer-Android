@@ -17,14 +17,14 @@ public enum WXCommonModuleManager {
         this.handler = handler;
     }
 
-    public Map<String, Object> handle(String content, CommonModule commonModule) {
+    public Map<String, Object> handle(String path, WXSDKInstance mWXSDKInstance) {
         if (handler != null) {
-            return handler.handle(content, commonModule.mWXSDKInstance, commonModule);
+            return handler.handle(path, mWXSDKInstance);
         }
         return null;
     }
 
     public interface WXCommonModuleHandler {
-        Map<String, Object> handle(String content, WXSDKInstance mWXSDKInstance, CommonModule commonModule);
+        Map<String, Object> handle(String path, WXSDKInstance mWXSDKInstance);
     }
 }

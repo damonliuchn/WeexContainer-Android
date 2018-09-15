@@ -20,7 +20,7 @@ public class CommonModule extends WXModule {
     @JSMethod(uiThread = true)
     public void handle(String url) {
         //处理weex发出的操作信息url
-        WXCommonModuleManager.INSTANCE.handle(url, this);
+        WXCommonModuleManager.INSTANCE.handle(url, this.mWXSDKInstance);
     }
 
     @JSMethod(uiThread = true)
@@ -28,7 +28,7 @@ public class CommonModule extends WXModule {
         //处理weex发出的操作信息url,带返回值
         Map<String, Object> map = new HashMap<>();
         try {
-            map = WXCommonModuleManager.INSTANCE.handle(url, this);
+            map = WXCommonModuleManager.INSTANCE.handle(url, this.mWXSDKInstance);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -40,7 +40,7 @@ public class CommonModule extends WXModule {
         //处理weex发出的操作信息url,带返回值，新开子线程
         Map<String, Object> map = new HashMap<>();
         try {
-            map = WXCommonModuleManager.INSTANCE.handle(url, this);
+            map = WXCommonModuleManager.INSTANCE.handle(url, this.mWXSDKInstance);
         } catch (Exception e) {
             e.printStackTrace();
         }
