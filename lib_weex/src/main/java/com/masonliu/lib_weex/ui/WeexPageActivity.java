@@ -23,12 +23,10 @@ import com.taobao.weex.WXSDKInstance;
 import com.taobao.weex.common.IWXDebugProxy;
 import com.taobao.weex.common.WXRenderStrategy;
 
-import java.io.File;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
-import com.taobao.weex.bridge.JSCallback;
 
 public class WeexPageActivity extends AppCompatActivity implements IWXRenderListener {
     private static final String PAGE_NAME = "WXMason";
@@ -84,7 +82,7 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
          * "http://dev.bingocc.com/buiweex-demo/app.weex.js"
          * pageName:自定义，一个标示符号。
          * url:远程bundle JS的下载地址
-         * options:初始化时传入WEEX的参数，比如 bundle JS地址
+         * options:初始化时传入WEEX的参数，比如 bundle JS地址 用来指定远程静态资源的base url
          * flag:渲染策略。WXRenderStrategy.APPEND_ASYNC:异步策略先返回外层View，其他View渲染完成后调用onRenderSuccess。WXRenderStrategy.APPEND_ONCE 所有控件渲染完后后一次性返回。
          */
         options = new HashMap<>();
@@ -93,9 +91,9 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
         registerBroadcastReceiver();
     }
 
-    private void init(){
+    private void init() {
         //获取缓存文件
-        String wrapUrl=mUri;//debug时直接使用net,远程url使用https + 客户端本地证书spinning，防止bundle中间人劫持。
+        String wrapUrl = mUri;//debug时直接使用net,远程url使用https
         if (!CommonUtil.isApkDebugable(this)) {
             //查找缓存文件
             wrapUrl = WXLoadAndCacheManager.INSTANCE.getOrCacheUri(mUri);
@@ -141,25 +139,20 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
         return "";
     }
 
-    private String getOrAssetsUri(String httpUrl){
-        if(httpUrl.contains("http://")){
+    private String getOrAssetsUri(String httpUrl) {
+        if (httpUrl.contains("http://")) {
             String assetsUrl = getAssetsUrl(httpUrl);
             boolean assetsFileExist = false;
             InputStream in = null;
-            try
-            {
+            try {
                 in = getResources().getAssets().open(assetsUrl.replace("file://local/", ""));
                 assetsFileExist = true;
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 e.printStackTrace();
-            }
-            finally
-            {
+            } finally {
                 CommonUtil.closeQuietly(in);
             }
-            if(assetsFileExist){
+            if (assetsFileExist) {
                 return assetsUrl;
             }
         }
@@ -269,7 +262,7 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
         if (!CommonUtil.isApkDebugable(getApplicationContext())) {
             //删除缓存文件
             WXLoadAndCacheManager.INSTANCE.deleteCache(mUri);
-            //使用assets，如果没有则重新加载
+            //重新加载
             init();
         }
     }

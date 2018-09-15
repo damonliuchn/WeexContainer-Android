@@ -18,17 +18,18 @@ https://github.com/MasonLiuChn/WeexExplorer
 2. Native通知Weex
 3. Weex跳转Weex（实现MPA多页面应用）
 4. Weex跳转、调用Native
-5. Bundle缓存功能
-6. Bundle验证签名
-7. 开启调试器ChromeDebugger
-8. 新网络模块
+5. Bundle加载功能
+6. Bundle更新功能
+7. Bundle验证签名
+8. 开启调试器ChromeDebugger
+9. 新网络模块
 
 
 ### （一）Native跳转Weex
-1. 加载assets/weex下(使用assets方式时，只支持放在assets/weex下)
+1. 加载assets/weex下的文件(使用assets方式时，只支持放在assets/weex下)
 2. 加载存储空间内的文件
 3. 加载网络文件
-    - Release环境下，加载网络文件的顺序是 a.查找缓存文件（有问题则删除）->b. 使用网络文件->c.查找assets
+    - Release环境下，加载网络文件的顺序是 a.查找缓存文件->b. 查找assets（如果有则放在缓存）->c.下载网络文件，放在缓存
 ```java
 //example
 WeexPageActivity.startFrom(
@@ -96,9 +97,9 @@ weex.requireModule("CommonModule").handleWithResultInThread('/activity/movieDeta
 ```
 - 2、Android工程使用如下：
 ```java
-WeexUtil.setCommonModuleHandler((content, mWXSDKInstance, commonModule) -> {
+WeexUtil.setCommonModuleHandler((path, mWXSDKInstance, commonModule) -> {
             //我这里使用了ARouter处理Native端的跳转
-            //return RouterUtil.go((Activity) mWXSDKInstance.getContext(), content);
+            //return RouterUtil.go((Activity) mWXSDKInstance.getContext(), path);
 });
 ```
 - 3、Weex调用Native时如果是需要返回结果的调用，则需自己实现注册一个Module，编写带有jscallback的方法
@@ -108,20 +109,23 @@ WeexUtil.setCommonModuleHandler((content, mWXSDKInstance, commonModule) -> {
 public void nativeHttpGet(String url, JSCallback callback) {}
 ```
 
-### （五）Bundle缓存功能
+### （五）Bundle加载功能
 - 1、SDK提供了默认的Bundle缓存功能
-    - Release环境下，加载网络文件的顺序是 a.查找缓存文件（有问题则删除）->b.查找assets ->c.请求网络
-    - 使用LRU实现缓存，对相同url的Bundle实施缓存，默认缓存容量15
-```
+    - Release环境下，加载网络文件的顺序是 a.查找缓存文件->b.查找assets ->c.请求网络
+    - 使用LRU实现缓存，对Bundle实施缓存，默认缓存容量15
 
-### （六）Bundle验证签名
->SDK没有提供默认的验签功能，因为这属于应用方的业务。但SDK提供设置OKHTTP的方法，在该方法里开发者可以校验下载Bundle url里https的证书
+### （六）Bundle更新功能
+- doing
+<img src="https://raw.githubusercontent.com/MasonLiuChn/WeexContainer-Android/master/demo/doc/bundlUpdate.png" width="40%" height="40%" />
+
+### （七）Bundle验证签名
+>SDK没有提供默认的验签功能，因为这属于应用方的业务(例如服务端采用自签名的证书)。但SDK提供设置OKHTTP的方法，在该方法里开发者可以校验下载Bundle url里https的证书
 ```java
 WeexUtil.setOkHttpClient(OkHttpClient okHttpClient)
 
 ```
 
-### （七）开启调试器ChromeDebugger
+### （八）开启调试器ChromeDebugger
 - 1、该SDK集成了weex debug功能，启动SDK时，将下面第二个参数设置为true
 ```java
 WeexUtil.init(this,true,BuildConfig.BUILD_IP,null);
@@ -132,7 +136,7 @@ WeexUtil.init(this,true,BuildConfig.BUILD_IP,null);
 - 5、此时chrome页面上出现了手机设备
 - 6、点击debugger开始调试
 
-### （八）新网络模块
+### （九）新网络模块
 >网络请求模块除了weex自带的stream，还额外提供了nativeHttpGet方法，使用okhttp做请求，后续会增加post、put、delete等方法
 ```javascript
 var commonModule=weex.requireModule("CommonModule");
@@ -160,7 +164,7 @@ repositories {
     maven { url "https://github.com/MasonLiuChn/MasonMavenRepository/raw/maven/releases" }
 }
 dependencies {
- compile 'com.github.MasonLiuChn:WeexContainer-Android:1.0.2'
+ compile 'com.github.MasonLiuChn:WeexContainer-Android:1.0.3'
 }
 ```
 ```java
@@ -190,15 +194,17 @@ public static void setDebugable(boolean isDebug) {
 public static void setURLIntercepter(WXURLManager.WXURLHandler handler) {
         
 }
-
+//设置一个处理器用于处理CommonModule发过来的path
 public static void setCommonModuleHandler(WXCommonModuleManager.WXCommonModuleHandler handler) {
         
 }
 ```
 
 # 四、Todo
-1. openBrowser\getSysInfo
-2. iOS...
+1、list组件自然加载更多
+2、Bundle更新功能
+3. openBrowser\getSysInfo
+4. iOS...
     
 ---
 # Contact me:
