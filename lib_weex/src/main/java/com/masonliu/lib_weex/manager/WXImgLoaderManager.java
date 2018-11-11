@@ -3,8 +3,10 @@ package com.masonliu.lib_weex.manager;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.text.TextUtils;
 import android.widget.ImageView;
 
+import com.masonliu.lib_weex.generated.R;
 import com.nostra13.universalimageloader.cache.disc.DiskCache;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -15,12 +17,16 @@ import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.nostra13.universalimageloader.utils.DiskCacheUtils;
 import com.nostra13.universalimageloader.utils.MemoryCacheUtils;
+import com.taobao.weex.WXSDKManager;
+import com.taobao.weex.adapter.IWXImgLoaderAdapter;
+import com.taobao.weex.common.WXImageStrategy;
+import com.taobao.weex.dom.WXImageQuality;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class WeexImageLoaderManager {
+public class WXImgLoaderManager {
     private static final boolean CACHE_IN_MEMORY = true;
     private static final boolean CACHE_ON_DISK = true;
     private static ImageLoader imageLoader;
@@ -97,6 +103,35 @@ public class WeexImageLoaderManager {
     static void checkIsInit() {
         if (imageLoader == null) {
             throw new IllegalStateException("Please init ImageLoaderUtil.init(Context context) in Application");
+        }
+    }
+
+    public static class WXImgLoaderAdapter implements IWXImgLoaderAdapter {
+
+        @Override
+        public void setImage(final String url, final ImageView view, WXImageQuality quality, WXImageStrategy strategy) {
+            WXSDKManager.getInstance().postOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (view == null || view.getLayoutParams() == null
+                            || view.getLayoutParams().width <= 0 || view.getLayoutParams().height <= 0) {
+                        return;
+                    }
+                    if (TextUtils.isEmpty(url)) {
+                        view.setImageBitmap(null);
+                        return;
+                    }
+                    /**
+                     * image src接收格式为
+                     1、file://xxx
+                     2、http://xxx
+                     3、//xxx     weex-ui中的图片地址是//开头的
+                     当第三种时，控件会根据bundle是否是远程bundle来拼上http:或者file:
+                     */
+                    String temp = url.replace("file://", "http://");
+                    WXImgLoaderManager.displayImage(view, temp, R.color.white, -1, -1);
+                }
+            }, 0);
         }
     }
 }

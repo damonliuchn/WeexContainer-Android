@@ -6,9 +6,8 @@ import android.support.annotation.Nullable;
 import com.masonliu.lib_weex.manager.WXCommonModuleManager;
 import com.masonliu.lib_weex.manager.WXLoadAndCacheManager;
 import com.masonliu.lib_weex.manager.WXURLManager;
-import com.masonliu.lib_weex.manager.WeexImageLoaderManager;
+import com.masonliu.lib_weex.manager.WXImgLoaderManager;
 import com.masonliu.lib_weex.module.CommonModule;
-import com.masonliu.lib_weex.ui.ImageAdapter;
 import com.squareup.okhttp.OkHttpClient;
 import com.taobao.weex.InitConfig;
 import com.taobao.weex.WXEnvironment;
@@ -25,15 +24,13 @@ public class WeexUtil {
             if (CommonUtil.isApkDebugable(application) && connectDebuggerOnAppDebug) {
                 initDebugEnvironment(true, debuggerHost);
             }
-
             //设置图片处理器
             if (iwxImgLoaderAdapter == null) {
-                WeexImageLoaderManager.init(application);
-                iwxImgLoaderAdapter = new ImageAdapter();
+                WXImgLoaderManager.init(application);
+                iwxImgLoaderAdapter = new WXImgLoaderManager.WXImgLoaderAdapter();
             }
             InitConfig config = new InitConfig.Builder().setImgAdapter(iwxImgLoaderAdapter).build();
             WXSDKEngine.initialize(application, config);
-
             //注册module
             try {
                 WXSDKEngine.registerModule("CommonModule", CommonModule.class);
@@ -66,11 +63,12 @@ public class WeexUtil {
         WXURLManager.INSTANCE.setHandler(handler);
     }
 
-    public static void setOkHttpClient(OkHttpClient okHttpClient) {
-        WXLoadAndCacheManager.INSTANCE.setOkHttpClient(okHttpClient);
-    }
 
     public static void setCommonModuleHandler(WXCommonModuleManager.WXCommonModuleHandler handler) {
         WXCommonModuleManager.INSTANCE.setHandler(handler);
+    }
+
+    public static void setOkHttpClient(OkHttpClient okHttpClient) {
+        WXLoadAndCacheManager.INSTANCE.setOkHttpClient(okHttpClient);
     }
 }

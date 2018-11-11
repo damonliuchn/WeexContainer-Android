@@ -8,6 +8,7 @@ import com.taobao.weex.WXEnvironment;
 
 import java.io.File;
 import java.io.InputStream;
+import java.net.URLEncoder;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -17,6 +18,17 @@ import java.util.concurrent.TimeUnit;
  */
 public enum WXLoadAndCacheManager {
     INSTANCE;
+    public static final String WEEX_CACHE_BUNDLE_PATH = "weex/cacheBundle/";
+    private final int cacheSize = 50;
+    public Map<String, String> lruMap = new LinkedHashMap<String, String>(//初始容量和默认加载因子,Math.ceil() 函数返回 >= 一个给定数字的最小整数
+            (int) Math.ceil(cacheSize / 0.75f),
+            0.75f,
+            true) {
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<String, String> eldest) {
+            return size() > cacheSize;
+        }
+    };
     private OkHttpClient okHttpClient;
 
     public OkHttpClient getOkHttpClient() {
@@ -32,30 +44,26 @@ public enum WXLoadAndCacheManager {
     public void setOkHttpClient(OkHttpClient okHttpClient) {
         this.okHttpClient = okHttpClient;
     }
-    public static final String WEEX_CACHE_BUNDLE_PATH = "weex/cacheBundle/";
-    final int cacheSize = 15;
-    public Map<String, String> lruMap = new LinkedHashMap<String, String>(//初始容量和默认加载因子,Math.ceil() 函数返回 >= 一个给定数字的最小整数
-            (int) Math.ceil(cacheSize / 0.75f),
-            0.75f,
-            true) {
-        @Override
-        protected boolean removeEldestEntry(Map.Entry<String, String> eldest) {
-            return size() > cacheSize;
-        }
-    };
+
 
     /**
-     * 获取本地JS路径
+     * 获取本地JS路径，没有找到时返回null
      */
-    public String getOrCacheUri(String uri) {
+    public String getCache(String uri) {
+        if(uri.startsWith("file")){
+            return uri;
+        }
         File f = getCacheFile(uri);
         if (f != null && f.exists()) {
             return "file://" + f.getAbsolutePath();
         }
-        return uri;
+        return null;
     }
 
     public void deleteCache(String uri) {
+        if(uri.startsWith("file")){
+            return;
+        }
         File f = getCacheFile(uri);
         if (f != null && f.exists()) {
             f.delete();
@@ -63,8 +71,9 @@ public enum WXLoadAndCacheManager {
     }
 
     public File getCacheFile(String mUri) {
-        String hostPath = mUri.split("\\?")[0];//问号分割
-        String fileName = Base64.encodeToString(hostPath.getBytes(), Base64.NO_PADDING | Base64.NO_WRAP | Base64.URL_SAFE);
+        //String hostPath = mUri.split("\\?")[0];//问号分割
+        //String fileName = Base64.encodeToString(hostPath.getBytes(), Base64.NO_PADDING | Base64.NO_WRAP | Base64.URL_SAFE);
+        String fileName = URLEncoder.encode(mUri);//支持全路径
         // put into  lru cache
         File f = new File(WXEnvironment.sApplication.getCacheDir(), WEEX_CACHE_BUNDLE_PATH + fileName + ".js");
         if (f.exists()) {

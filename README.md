@@ -1,5 +1,5 @@
 # WeexContainer-Android
-一个Android平台上Weex容器，集成该SDK后，App可以看作是一个Weex的浏览器，只需传入一个打好的vue工程的js文件即可。实现MPA,Bundle缓存、验签等通用功能。
+一个Android平台上Weex容器，集成该SDK后，App可以看作是一个Weex的浏览器，只需传入一个打好的vue工程的js文件即可。实现MPA,Bundle缓存等通用功能。
 如：
 ```java
 WeexPageActivity.startFrom(
@@ -7,10 +7,6 @@ WeexPageActivity.startFrom(
                 "http://192.168.12.20:10004/dist/pages/main.js",
                 null);
 ```
-
-# TODO
-1、backups file name 逻辑处理
-2、getSysInfo 版本号、status高度
 
 # 一、Demo：
 http://www.digua.info
@@ -21,27 +17,25 @@ https://github.com/MasonLiuChn/WeexExplorer
 1. Native跳转Weex
 2. Native通知Weex
 3. Weex跳转Weex（实现MPA多页面应用）
-4. Weex跳转、调用Native
-5. Bundle加载功能
-6. Bundle更新功能
-7. Bundle验证签名
-8. 开启调试器ChromeDebugger
-9. 新网络模块
+4. Weex调用Native
+5. Bundle验签说明
+6. 开启调试器ChromeDebugger
+7. 内置常用native方法（get请求、打开浏览器）
+8. 内置更丰富的环境变量
 
 
 ### （一）Native跳转Weex
-1. 加载assets/weex下的文件(使用assets方式时，只支持放在assets/weex下)
-2. 加载存储空间内的文件
+1. 加载assets/weex下的文件(使用assets方式时，只支持放在assets/weex下)如：file://local/weex
+2. 加载存储空间内的文件，如：file://xx
 3. 加载网络文件
-    - Release环境下，加载网络文件的顺序是 a.查找缓存文件->b. 查找assets（如果有则放在缓存）->c.下载网络文件，放在缓存
+    - Release环境下，加载网络文件的顺序是 a.查找缓存文件->b. 查找assets->c.下载网络文件，放在缓存
+    - 使用LRU实现缓存，对Bundle实施缓存，默认缓存容量50
 ```java
 //example
 WeexPageActivity.startFrom(
                 LauncherActivity.this,
-                //"file://local/weex/main.js",
-                //"file://sdcard/xx",
                 "http://192.168.12.20:10004/dist/pages/main.js",
-                null);
+                "file://local/weex/main.js");
 
 ```
 ### （二）Native通知Weex
@@ -49,9 +43,7 @@ WeexPageActivity.startFrom(
 ```java
 public void onBackPressed() {
         if (mWXSDKInstance != null && renderSuccess) {
-            Map<String, Object> params = new HashMap<>();
-            params.put("name", "returnmsg");
-            mWXSDKInstance.fireGlobalEventCallback("androidback", params);
+            mWXSDKInstance.fireGlobalEventCallback("androidBack", new HashMap<>(String, Object));
         } else {
             super.onBackPressed();
         }
@@ -62,24 +54,21 @@ const globalEvent = weex.requireModule('globalEvent');
 export default {
     created() {
         this.globalEvent = globalEvent;
-        this.globalEvent.addEventListener("androidback", e => {
-            this.router.back()
+        this.globalEvent.addEventListener("androidBack", e => {
+            this.pop()
         });
-    },
-    methods: {}
+    }
 }
 
 ```
 ### （三）Weex跳转Weex，实现MPA多页面应用
-- 1、Weex工程内使用VueRouter做页面跳转，Url为Bundle的网络地址
+- 1、Weex工程正常使用weex提供的navigator做页面跳转
 ```java
-const basePath = 'http://192.168.12.20:10004/dist';
-export default [
-    {path: '/', component: basePath + '/pages/index.js'},
-    {path: '/main', component: basePath + '/pages/main.js'}
-];
-...
-router.push('/main')
+var navigator = weex.requireModule('navigator')
+navigator.push({
+          url: 'http://dotwe.org/raw/dist/519962541fcf6acd911986357ad9c2ed.js',
+          animated: "true"
+        })
 ```
 - 2、Android工程无需做配置，本SDK会自动开启新Activity加载Bundle
 - 3、使用者想做自定义的跳转配置，则可以使用SDK提供的如下方法：
@@ -89,7 +78,7 @@ WeexUtil.setURLIntercepter(url -> {
 });
 ```
 
-### （四）Weex跳转、调用Native
+### （四）Weex调用Native
 - 1、Weex工程使用如下：
 ```javascript
 //不带回调结果
@@ -102,34 +91,18 @@ weex.requireModule("CommonModule").handleWithResultInThread('/activity/movieDeta
 - 2、Android工程使用如下：
 ```java
 WeexUtil.setCommonModuleHandler((path, mWXSDKInstance, commonModule) -> {
-            //我这里使用了ARouter处理Native端的跳转
-            //return RouterUtil.go((Activity) mWXSDKInstance.getContext(), path);
+
 });
 ```
-- 3、Weex调用Native时如果是需要返回结果的调用，则需自己实现注册一个Module，编写带有jscallback的方法
-```java
-/*****example jscallback*****/
-@JSMethod(uiThread = false)
-public void nativeHttpGet(String url, JSCallback callback) {}
-```
 
-### （五）Bundle加载功能
-- 1、SDK提供了默认的Bundle缓存功能
-    - Release环境下，加载网络文件的顺序是 a.查找缓存文件->b.查找assets ->c.请求网络
-    - 使用LRU实现缓存，对Bundle实施缓存，默认缓存容量15
-
-### （六）Bundle更新功能
-- doing
-<img src="https://raw.githubusercontent.com/MasonLiuChn/WeexContainer-Android/master/demo/doc/bundlUpdate.png" width="40%" height="40%" />
-
-### （七）Bundle验证签名
->SDK没有提供默认的验签功能，因为这属于应用方的业务(例如服务端采用自签名的证书)。但SDK提供设置OKHTTP的方法，在该方法里开发者可以校验下载Bundle url里https的证书
+### （五）Bundle验证签名
+>SDK没有提供默认的验签功能，因为这属于应用方的业务(例如服务端采用自签名的证书)。但SDK提供设置OKHTTP的方法，在该方法里开发者可以校验下载Bundle url里https的证书，或者自己下载文件后自行验签，将本地url传给WeexContainer。
 ```java
 WeexUtil.setOkHttpClient(OkHttpClient okHttpClient)
 
 ```
 
-### （八）开启调试器ChromeDebugger
+### （六）开启调试器ChromeDebugger
 - 1、该SDK集成了weex debug功能，启动SDK时，将下面第二个参数设置为true
 ```java
 WeexUtil.init(this,true,BuildConfig.BUILD_IP,null);
@@ -140,7 +113,8 @@ WeexUtil.init(this,true,BuildConfig.BUILD_IP,null);
 - 5、此时chrome页面上出现了手机设备
 - 6、点击debugger开始调试
 
-### （九）新网络模块
+### （七）内置常用native方法（get请求、打开浏览器）
+- 1、okhttp get请求
 >网络请求模块除了weex自带的stream，还额外提供了nativeHttpGet方法，使用okhttp做请求，后续会增加post、put、delete等方法
 ```javascript
 var commonModule=weex.requireModule("CommonModule");
@@ -153,6 +127,21 @@ commonModule.nativeHttpGet(url,(response)=>{
         }
 );
 ```
+- 2、打开浏览器
+```javascript
+var commonModule=weex.requireModule("CommonModule");
+commonModule.openBrowser(url);
+```
+### （八）内置更丰富的环境变量
+```javascript
+weex.config.debug
+weex.config.weexContainerVersionCode
+weex.config.weexContainerVersionName
+weex.config.androidStatusBarHeight
+weex.config.androidBuildProp
+weex.config.androidBuildClass
+```
+
 # 三、Usage
 ### （一）简单用法
 ```java
@@ -176,10 +165,8 @@ dependencies {
  WeexUtil.init(this, false, BuildConfig.BUILD_IP,null);
 ```
 ```java
-WeexPageActivity.startFrom(
-                LauncherActivity.this,
-                "http://192.168.12.20:10004/dist/pages/main.js",
-                null);
+WeexPageActivity.startFrom(LauncherActivity.this,
+                "http://192.168.12.20:10004/dist/pages/main.js",null);
 ```
 
 ### （二）高级用法
@@ -187,29 +174,21 @@ WeexPageActivity.startFrom(
 public static void init(Application application,
                             boolean connectDebuggerOnAppDebug,
                             @Nullable String debuggerHost,
-                            @Nullable IWXImgLoaderAdapter iwxImgLoaderAdapter) {
-        
-}
+                            @Nullable IWXImgLoaderAdapter iwxImgLoaderAdapter) {}
 
-public static void setDebugable(boolean isDebug) {
-        
-}
+public static void setDebugable(boolean isDebug) {}
 
-public static void setURLIntercepter(WXURLManager.WXURLHandler handler) {
-        
-}
-//设置一个处理器用于处理CommonModule发过来的path
+public static void setURLIntercepter(WXURLManager.WXURLHandler handler) {}
+
+//设置一个处理器用于处理CommonModule发过来的js调用
 public static void setCommonModuleHandler(WXCommonModuleManager.WXCommonModuleHandler handler) {
-        
 }
 ```
 
-# 四、Todo
+# Todo
 1、list组件自然加载更多
-2、Bundle更新功能
-3. openBrowser\getSysInfo
-4. iOS...
-    
+2. iOS
+
 ---
 # Contact me:
 

@@ -1,5 +1,10 @@
 package com.masonliu.lib_weex.module;
 
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
+
 import com.masonliu.lib_weex.generated.BuildConfig;
 import com.masonliu.lib_weex.manager.WXCommonModuleManager;
 import com.masonliu.lib_weex.manager.WXLoadAndCacheManager;
@@ -10,8 +15,12 @@ import com.taobao.weex.annotation.JSMethod;
 import com.taobao.weex.bridge.JSCallback;
 import com.taobao.weex.common.WXModule;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * Created by liumeng02 on 2018/3/26.
@@ -74,61 +83,19 @@ public class CommonModule extends WXModule {
         callback.invoke(map);
     }
 
+    /**
+     * 内置功能
+     **/
     @JSMethod(uiThread = true)
     public void openBrowser(String url) {
-
-    }
-
-    @JSMethod(uiThread = true)
-    public void getSysInfo(JSCallback callback) {
-        //处理weex发出的操作信息url,带返回值
-        Map<String, Object> map = new HashMap<>();
-        map.put("DEBUG", CommonUtil.isApkDebugable(this.mWXSDKInstance.getContext()));
-        map.put("WEEX_CONTAINERSDK_VERSION_CODE", "" + BuildConfig.VERSION_CODE);
-        map.put("WEEX_CONTAINERSDK_VERSION_NAME", BuildConfig.VERSION_NAME);
-//        遍历
-//        Build.MODEL、rom
-//                信息
-//        properties = new Properties();
-//        properties.load(new FileInputStream(new File(Environment.getRootDirectory(), "build.prop")));
-//
-//        public String getDeviceInfo2(){
-//            StringBuilder sbBuilder = new StringBuilder();
-//            Field[] fields = Build.class.getDeclaredFields();
-//            for(Field field:fields){
-//                field.setAccessible(true);
-//                try {
-//                    sbBuilder.append("\n"+field.getName()+":"+field.get(null).toString());
-//                } catch (IllegalArgumentException e) {
-//                    e.printStackTrace();
-//                } catch (IllegalAccessException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//            return sbBuilder.toString();
-//        }
-//
-//        try {
-//            int height = 0;
-//            int resourceId = this.mWXSDKInstance.getContext().getResources().getIdentifier("status_bar_height", "dimen", "android");
-//            if (resourceId > 0) {
-//                height = this.mWXSDKInstance.getContext().getResources().getDimensionPixelSize(resourceId);
-//            }
-//            map.put("STATUS_BAR_HEIGHT", height);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//
-//        callback.invoke(map);
-//        osversion
-//                osname
-//        sdkversion
-//                sdkname
-//                网络类型
-//                        厂商
-//                        型号
-//                                rom名称
-//                                rom版本
-
+        try{
+            Intent intent= new Intent();
+            intent.setAction("android.intent.action.VIEW");
+            Uri uri = Uri.parse(url);
+            intent.setData(uri);
+            this.mWXSDKInstance.getContext().startActivity(intent);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 }

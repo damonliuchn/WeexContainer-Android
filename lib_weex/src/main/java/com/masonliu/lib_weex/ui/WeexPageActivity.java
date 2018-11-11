@@ -29,39 +29,36 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class WeexPageActivity extends AppCompatActivity implements IWXRenderListener {
-    private static final String PAGE_NAME = "WXMason";
+    private static final String PAGE_NAME = "WeexContainer";
     private static final String KEY_URI = "URI";
-    private static final String KEY_BACKUPS_FILE_NAME = "BACKUPS_FILE_NAME";
+    private static final String KEY_BACKUPS_URI = "BACKUPS_URI";
     private WXSDKInstance mWXSDKInstance;
     private FrameLayout mContainer;
     private ProgressBar mProgress;
     private String mUri;
-    private String mBackupsFileName;
+    private String mBackupsUri;
     private RefreshBroadcastReceiver mReceiver;
     private boolean renderSuccess;
     private Map<String, Object> options;
 
     /**
-     * net 模式
-     * debug时：net
-     * release时：net + filecache + assets
-     * <p>
-     * local 模式
-     * debug时：net
-     * release时：assets
      *
      * @param activity
      * @param uri
-     * @param mBackupsFileName
+     * assets文件： file://local/weex
+     * 存储文件： file://xx
+     * https地址： https://xxx
+     * http地址： http://
+     * @param mBackupsUri
      */
-    public static void startFrom(Context activity, String uri, String mBackupsFileName) {
+    public static void startFrom(Context activity, String uri, String mBackupsUri) {
         if (TextUtils.isEmpty(uri)) {
             return;
         }
         uri = WXURLManager.INSTANCE.handle(uri);
         Intent intent = new Intent(activity, WeexPageActivity.class);
         intent.putExtra(KEY_URI, uri);
-        intent.putExtra(KEY_BACKUPS_FILE_NAME, mBackupsFileName);
+        intent.putExtra(KEY_BACKUPS_URI, mBackupsUri);
         activity.startActivity(intent);
     }
 
@@ -70,36 +67,40 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
         getSupportActionBar().hide();
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_network);
-        mContainer = (FrameLayout) findViewById(R.id.container);
-        mProgress = (ProgressBar) findViewById(R.id.progress);
+        setContentView(R.layout.activity_container);
+        mContainer =  findViewById(R.id.container);
+        mProgress = findViewById(R.id.progress);
+
         mUri = getIntent().getStringExtra(KEY_URI);
-        mBackupsFileName = getIntent().getStringExtra(KEY_BACKUPS_FILE_NAME);
+        mBackupsUri = getIntent().getStringExtra(KEY_BACKUPS_URI);
 
         mWXSDKInstance = new WXSDKInstance(this);
         mWXSDKInstance.registerRenderListener(this);
-        /**
-         * "http://dev.bingocc.com/buiweex-demo/app.weex.js"
-         * pageName:自定义，一个标示符号。
-         * url:远程bundle JS的下载地址
-         * options:初始化时传入WEEX的参数，比如 bundle JS地址 用来指定远程静态资源的base url
-         * flag:渲染策略。WXRenderStrategy.APPEND_ASYNC:异步策略先返回外层View，其他View渲染完成后调用onRenderSuccess。WXRenderStrategy.APPEND_ONCE 所有控件渲染完后后一次性返回。
-         */
+
         options = new HashMap<>();
         options.put(WXSDKInstance.BUNDLE_URL, mUri);
+        CommonUtil.appendSysOption(options,this);
+
         init();
         registerBroadcastReceiver();
     }
 
     private void init() {
         //获取缓存文件
-        String wrapUrl = mUri;//debug时直接使用net,远程url使用https
-        if (!CommonUtil.isApkDebugable(this)) {
+        String wrapUrl = mUri;
+        if (!CommonUtil.isApkDebugable(this)) {//debug时不查找缓存
             //查找缓存文件
-            wrapUrl = WXLoadAndCacheManager.INSTANCE.getOrCacheUri(mUri);
-            //查找asset文件
-            wrapUrl = getOrAssetsUri(wrapUrl);
-            //如果都没找到则去http下载
+            wrapUrl = WXLoadAndCacheManager.INSTANCE.getCache(mUri);
+            if(TextUtils.isEmpty(wrapUrl)){
+                //查找asset文件
+                wrapUrl = getAssetsUri(mUri);
+                if(TextUtils.isEmpty(wrapUrl)){
+                    //如果assets没有找到则还是使用原始uri
+                    //如果有则免去第一次的下载时间
+                    wrapUrl = mUri;
+                }
+            }
+
         }
         refresh(wrapUrl);
     }
@@ -121,42 +122,39 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
     }
 
     /**
-     * file://local  代表assets
-     *
-     * @param httpUrl
+     * 通过url里的path名获取assetsUri，获取url里斜杠后边，问号前面的名字
+     * @param uri
      * @return
      */
-    private String getAssetsUrl(String httpUrl) {
+    private String getAssetsUri(String uri) {
+        if(uri.startsWith("file")){
+            return uri;
+        }
+        //通过path名获取assetsUri，获取url里斜杠后边，问号前面的名字
+        String assetsUrl = null;
         try {
-            URI uri = new URI(httpUrl);
-            String[] names = uri.getPath().split("/");
+            URI uriTemp = new URI(uri);
+            String[] names = uriTemp.getPath().split("/");
             String name = names[names.length - 1];
-            String renderUrl = "file://local/weex/" + name;
-            return renderUrl;
+            assetsUrl = "file://local/weex/" + name;
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return "";
-    }
-
-    private String getOrAssetsUri(String httpUrl) {
-        if (httpUrl.contains("http://")) {
-            String assetsUrl = getAssetsUrl(httpUrl);
-            boolean assetsFileExist = false;
-            InputStream in = null;
-            try {
-                in = getResources().getAssets().open(assetsUrl.replace("file://local/", ""));
-                assetsFileExist = true;
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                CommonUtil.closeQuietly(in);
-            }
-            if (assetsFileExist) {
-                return assetsUrl;
-            }
+        //判断assets文件是否存在
+        boolean assetsFileExist = false;
+        InputStream in = null;
+        try {
+            in = getResources().getAssets().open(assetsUrl.replace("file://local/", ""));
+            assetsFileExist = true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            CommonUtil.closeQuietly(in);
         }
-        return httpUrl;
+        if (assetsFileExist) {
+            return assetsUrl;
+        }
+        return null;
     }
 
     @Override
@@ -193,9 +191,7 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
 
     public void onBackPressed() {
         if (mWXSDKInstance != null && renderSuccess) {
-            Map<String, Object> params = new HashMap<>();
-            params.put("name", "returnmsg");
-            mWXSDKInstance.fireGlobalEventCallback("androidback", params);
+            mWXSDKInstance.fireGlobalEventCallback("androidBack", new HashMap<String, Object>());
         } else {
             super.onBackPressed();
         }
@@ -231,9 +227,10 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
     }
 
     /**
-     * file://local/weex
-     * file://xx
-     * https://xxx or http://
+     * assets文件： file://local/weex
+     * 存储文件： file://xx
+     * https地址： https://xxx
+     * http地址： http://
      *
      * @param url
      */
@@ -244,7 +241,7 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
 
                         @Override
                         public void onSuccess(String localUrl) {
-                            mWXSDKInstance.renderByUrl(PAGE_NAME, localUrl, options, null, WXRenderStrategy.APPEND_ASYNC);
+                            refresh(localUrl);
                         }
 
                         @Override
@@ -253,6 +250,17 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
                         }
                     });
         } else {
+            /**
+             * pageName:自定义，一个标示符号。
+             * url:支持如下
+                 assets文件： file://local/weex
+                 存储文件： file://xx
+                 https地址： https://xxx
+                 http地址： http://
+             * options:初始化时传入WEEX的参数，比如 bundle JS地址 用来指定远程静态资源的base url
+             * flag:渲染策略。WXRenderStrategy.APPEND_ASYNC:异步策略先返回外层View，其他View渲染完成后调用onRenderSuccess。
+             *  WXRenderStrategy.APPEND_ONCE 所有控件渲染完后后一次性返回。
+             */
             mWXSDKInstance.renderByUrl(PAGE_NAME, url, options, null, WXRenderStrategy.APPEND_ASYNC);
         }
     }
@@ -262,6 +270,10 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
         if (!CommonUtil.isApkDebugable(getApplicationContext())) {
             //删除缓存文件
             WXLoadAndCacheManager.INSTANCE.deleteCache(mUri);
+            //使用mBackupsUri
+            if(!TextUtils.isEmpty(mBackupsUri)){
+                mUri = mBackupsUri;
+            }
             //重新加载
             init();
         }

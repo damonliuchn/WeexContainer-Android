@@ -4,19 +4,34 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.os.Build;
+import android.os.Environment;
+import android.text.TextUtils;
+
+import com.masonliu.lib_weex.generated.BuildConfig;
+import com.taobao.weex.bridge.JSCallback;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.Closeable;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CommonUtil {
 
     private static final int BUFFER_LENGTH = 256;
+    private static final int CHAR_SIZE = 128;
+    private static final String DECODING = "utf-8";
     private static Boolean isApkDebug;
 
     private CommonUtil() {
@@ -63,83 +78,75 @@ public class CommonUtil {
         closeQuietly(outStream);
     }
 
-    public static boolean string2File(String res, String filePath) {
-        boolean flag = true;
-        BufferedReader bufferedReader = null;
-        BufferedWriter bufferedWriter = null;
+    public static String streamToString(InputStream is, String decoding) {
+        StringBuilder sb = new StringBuilder();
+        InputStreamReader isr = null;
         try {
-            File distFile = new File(filePath);
-            if (!distFile.getParentFile().exists()) {
-                distFile.getParentFile().mkdirs();
+            if (!TextUtils.isEmpty(decoding)) {
+                isr = new InputStreamReader(is, decoding);
+            } else {
+                isr = new InputStreamReader(is, DECODING);
             }
-            bufferedReader = new BufferedReader(new StringReader(res));
-            // bufferedWriter = new BufferedWriter(new FileWriter(distFile));
-            java.io.FileOutputStream writerStream = new java.io.FileOutputStream(filePath);
-            bufferedWriter = new BufferedWriter(new java.io.OutputStreamWriter(writerStream, "UTF-8"));
-            char buf[] = new char[BUFFER_LENGTH]; // 字符缓冲区
-            int len;
-            while ((len = bufferedReader.read(buf)) != -1) {
-                bufferedWriter.write(buf, 0, len);
+            char[] buf = new char[CHAR_SIZE];
+            int hasRead = 0;
+            while ((hasRead = isr.read(buf)) > 0) {
+                sb.append(buf, 0, hasRead);
             }
-            bufferedWriter.flush();
-            bufferedReader.close();
-            bufferedWriter.close();
         } catch (Exception e) {
             e.printStackTrace();
-            flag = false;
-            return flag;
-        } finally {
-            if (bufferedReader != null) {
+        }finally {
+            closeQuietly(isr);
+            closeQuietly(is);
+        }
+        return sb.toString();
+    }
+
+    public static void appendSysOption(Map<String, Object> map,Context context) {
+        map.put("debug", CommonUtil.isApkDebugable(context));
+        map.put("weexContainerVersionCode", BuildConfig.VERSION_CODE);
+        map.put("weexContainerVersionName", BuildConfig.VERSION_NAME);
+
+        //STATUS_BAR_HEIGHT
+        int height = 0;
+        try {
+            int resourceId = context.getResources().getIdentifier("status_bar_height", "dimen", "android");
+            if (resourceId > 0) {
+                height = context.getResources().getDimensionPixelSize(resourceId);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        map.put("androidStatusBarHeight", height);
+
+        //BUILD_PROP
+        String buildProp = "";
+        try {
+            buildProp = CommonUtil.streamToString(
+                    new FileInputStream(
+                            new File(Environment.getRootDirectory(), "build.prop")),
+                    null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        map.put("androidBuildProp", buildProp);
+
+        //BUILD_CLASS
+        String buildClass = "";
+        try {
+            StringBuilder sbBuilder = new StringBuilder();
+            Field[] fields = Build.class.getDeclaredFields();
+            for(Field field:fields){
+                field.setAccessible(true);
                 try {
-                    bufferedReader.close();
+                    sbBuilder.append(field.getName()+":"+field.get(null).toString()+"\n");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
-            if (bufferedWriter != null) {
-                try {
-                    bufferedWriter.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return flag;
-    }
-
-    /**
-     * 获得软件版本
-     *
-     * @param con
-     * @return
-     */
-    public static String getVersionName(final Context con) {
-        String version = "0.0.0";
-        PackageManager packageManager = con.getPackageManager();
-        try {
-            PackageInfo packageInfo = packageManager.getPackageInfo(con.getPackageName(), 0);
-            version = packageInfo.versionName;
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-        }
-        return version;
-    }
-
-    /**
-     * 获得软件版本
-     *
-     * @param con
-     * @return
-     */
-    public static int getVersionCode(final Context con) {
-        int version = 1;
-        PackageManager packageManager = con.getPackageManager();
-        try {
-            PackageInfo packageInfo = packageManager.getPackageInfo(con.getPackageName(), 0);
-            version = packageInfo.versionCode;
+            buildClass = sbBuilder.toString();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return version;
+        map.put("androidBuildClass", buildClass);
     }
 }

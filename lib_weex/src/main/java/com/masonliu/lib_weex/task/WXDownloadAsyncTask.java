@@ -13,7 +13,6 @@ import com.taobao.weex.WXEnvironment;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.concurrent.Executors;
 
 import static com.masonliu.lib_weex.manager.WXLoadAndCacheManager.WEEX_CACHE_BUNDLE_PATH;
@@ -48,20 +47,16 @@ public class WXDownloadAsyncTask extends AsyncTask<Void, Void, String> {
 
     @Override
     protected String doInBackground(Void... params) {
-        String cacheUrl = null;
         try {
             //download
             InputStream inputStream = download(url);
             //cache
             cache(inputStream, url);
-            cacheUrl = manager.getOrCacheUri(url);
-            if (cacheUrl.startsWith("http")) {
-                cacheUrl = null;
-            }
+            return manager.getCache(url);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return cacheUrl;
+        return null;
     }
 
 
@@ -92,6 +87,7 @@ public class WXDownloadAsyncTask extends AsyncTask<Void, Void, String> {
             return inputStream;
         } catch (Exception e) {
             e.printStackTrace();
+        }finally {
             CommonUtil.closeQuietly(inputStream);
         }
         return null;
