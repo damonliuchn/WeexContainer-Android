@@ -31,12 +31,12 @@ import java.util.Map;
 public class WeexPageActivity extends AppCompatActivity implements IWXRenderListener {
     private static final String PAGE_NAME = "WXMason";
     private static final String KEY_URI = "URI";
-    private static final String KEY_INSTANCE_ID = "INSTANCE_ID";
+    private static final String KEY_BACKUPS_FILE_NAME = "BACKUPS_FILE_NAME";
     private WXSDKInstance mWXSDKInstance;
     private FrameLayout mContainer;
     private ProgressBar mProgress;
     private String mUri;
-    private String mWXSDKInstanceId;
+    private String mBackupsFileName;
     private RefreshBroadcastReceiver mReceiver;
     private boolean renderSuccess;
     private Map<String, Object> options;
@@ -52,16 +52,16 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
      *
      * @param activity
      * @param uri
-     * @param mWXSDKInstanceId
+     * @param mBackupsFileName
      */
-    public static void startFrom(Context activity, String uri, String mWXSDKInstanceId) {
+    public static void startFrom(Context activity, String uri, String mBackupsFileName) {
         if (TextUtils.isEmpty(uri)) {
             return;
         }
         uri = WXURLManager.INSTANCE.handle(uri);
         Intent intent = new Intent(activity, WeexPageActivity.class);
         intent.putExtra(KEY_URI, uri);
-        intent.putExtra(KEY_INSTANCE_ID, mWXSDKInstanceId);
+        intent.putExtra(KEY_BACKUPS_FILE_NAME, mBackupsFileName);
         activity.startActivity(intent);
     }
 
@@ -74,7 +74,7 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
         mContainer = (FrameLayout) findViewById(R.id.container);
         mProgress = (ProgressBar) findViewById(R.id.progress);
         mUri = getIntent().getStringExtra(KEY_URI);
-        mWXSDKInstanceId = getIntent().getStringExtra(KEY_INSTANCE_ID);
+        mBackupsFileName = getIntent().getStringExtra(KEY_BACKUPS_FILE_NAME);
 
         mWXSDKInstance = new WXSDKInstance(this);
         mWXSDKInstance.registerRenderListener(this);

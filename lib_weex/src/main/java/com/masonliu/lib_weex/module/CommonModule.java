@@ -1,7 +1,9 @@
 package com.masonliu.lib_weex.module;
 
+import com.masonliu.lib_weex.generated.BuildConfig;
 import com.masonliu.lib_weex.manager.WXCommonModuleManager;
 import com.masonliu.lib_weex.manager.WXLoadAndCacheManager;
+import com.masonliu.lib_weex.util.CommonUtil;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 import com.taobao.weex.annotation.JSMethod;
@@ -47,7 +49,9 @@ public class CommonModule extends WXModule {
         callback.invoke(map);
     }
 
-    /** 内置桥接功能 **/
+    /**
+     * 内置桥接功能
+     **/
     @JSMethod(uiThread = false)
     public void nativeHttpGet(String url, JSCallback callback) {
         Map<String, Object> map = new HashMap<>();
@@ -76,11 +80,46 @@ public class CommonModule extends WXModule {
     }
 
     @JSMethod(uiThread = true)
-    public void getSysInfo(String url) {
-//        result.put("DEBUG", "" + BuildConfig.DEBUG);
-//        result.put("APPLICATION_ID", BuildConfig.APPLICATION_ID);
-//        result.put("VERSION_CODE", "" + BuildConfig.VERSION_CODE);
-//        result.put("VERSION_NAME", BuildConfig.VERSION_NAME);
+    public void getSysInfo(JSCallback callback) {
+        //处理weex发出的操作信息url,带返回值
+        Map<String, Object> map = new HashMap<>();
+        map.put("DEBUG", CommonUtil.isApkDebugable(this.mWXSDKInstance.getContext()));
+        map.put("WEEX_CONTAINERSDK_VERSION_CODE", "" + BuildConfig.VERSION_CODE);
+        map.put("WEEX_CONTAINERSDK_VERSION_NAME", BuildConfig.VERSION_NAME);
+//        遍历
+//        Build.MODEL、rom
+//                信息
+//        properties = new Properties();
+//        properties.load(new FileInputStream(new File(Environment.getRootDirectory(), "build.prop")));
+//
+//        public String getDeviceInfo2(){
+//            StringBuilder sbBuilder = new StringBuilder();
+//            Field[] fields = Build.class.getDeclaredFields();
+//            for(Field field:fields){
+//                field.setAccessible(true);
+//                try {
+//                    sbBuilder.append("\n"+field.getName()+":"+field.get(null).toString());
+//                } catch (IllegalArgumentException e) {
+//                    e.printStackTrace();
+//                } catch (IllegalAccessException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//            return sbBuilder.toString();
+//        }
+//
+//        try {
+//            int height = 0;
+//            int resourceId = this.mWXSDKInstance.getContext().getResources().getIdentifier("status_bar_height", "dimen", "android");
+//            if (resourceId > 0) {
+//                height = this.mWXSDKInstance.getContext().getResources().getDimensionPixelSize(resourceId);
+//            }
+//            map.put("STATUS_BAR_HEIGHT", height);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//
+//        callback.invoke(map);
 //        osversion
 //                osname
 //        sdkversion

@@ -2,6 +2,8 @@ package com.masonliu.lib_weex.util;
 
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -103,5 +105,41 @@ public class CommonUtil {
             }
         }
         return flag;
+    }
+
+    /**
+     * 获得软件版本
+     *
+     * @param con
+     * @return
+     */
+    public static String getVersionName(final Context con) {
+        String version = "0.0.0";
+        PackageManager packageManager = con.getPackageManager();
+        try {
+            PackageInfo packageInfo = packageManager.getPackageInfo(con.getPackageName(), 0);
+            version = packageInfo.versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return version;
+    }
+
+    /**
+     * 获得软件版本
+     *
+     * @param con
+     * @return
+     */
+    public static int getVersionCode(final Context con) {
+        int version = 1;
+        PackageManager packageManager = con.getPackageManager();
+        try {
+            PackageInfo packageInfo = packageManager.getPackageInfo(con.getPackageName(), 0);
+            version = packageInfo.versionCode;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return version;
     }
 }

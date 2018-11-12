@@ -8,6 +8,10 @@ WeexPageActivity.startFrom(
                 null);
 ```
 
+# TODO
+1、backups file name 逻辑处理
+2、getSysInfo 版本号、status高度
+
 # 一、Demo：
 http://www.digua.info
 
