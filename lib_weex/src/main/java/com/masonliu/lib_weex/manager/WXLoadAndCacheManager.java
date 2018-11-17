@@ -1,13 +1,10 @@
 package com.masonliu.lib_weex.manager;
 
-import android.util.Base64;
-
 import com.masonliu.lib_weex.task.WXDownloadAsyncTask;
 import com.squareup.okhttp.OkHttpClient;
 import com.taobao.weex.WXEnvironment;
 
 import java.io.File;
-import java.io.InputStream;
 import java.net.URLEncoder;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -50,7 +47,7 @@ public enum WXLoadAndCacheManager {
      * 获取本地JS路径，没有找到时返回null
      */
     public String getCache(String uri) {
-        if(uri.startsWith("file")){
+        if (uri.startsWith("file")) {
             return uri;
         }
         File f = getCacheFile(uri);
@@ -61,7 +58,7 @@ public enum WXLoadAndCacheManager {
     }
 
     public void deleteCache(String uri) {
-        if(uri.startsWith("file")){
+        if (uri.startsWith("file")) {
             return;
         }
         File f = getCacheFile(uri);
@@ -73,7 +70,7 @@ public enum WXLoadAndCacheManager {
     public File getCacheFile(String mUri) {
         //String hostPath = mUri.split("\\?")[0];//问号分割
         //String fileName = Base64.encodeToString(hostPath.getBytes(), Base64.NO_PADDING | Base64.NO_WRAP | Base64.URL_SAFE);
-        String fileName = URLEncoder.encode(mUri);//支持全路径
+        String fileName = URLEncoder.encode(mUri).replace("%", "-");//支持全路径,replace%,防止后面代码decode如Uri.getPath
         // put into  lru cache
         File f = new File(WXEnvironment.sApplication.getCacheDir(), WEEX_CACHE_BUNDLE_PATH + fileName + ".js");
         if (f.exists()) {

@@ -87,7 +87,6 @@ public class WXDownloadAsyncTask extends AsyncTask<Void, Void, String> {
             return inputStream;
         } catch (Exception e) {
             e.printStackTrace();
-        }finally {
             CommonUtil.closeQuietly(inputStream);
         }
         return null;

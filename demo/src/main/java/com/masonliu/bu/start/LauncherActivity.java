@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
-import android.view.animation.AlphaAnimation;
 import android.widget.EditText;
 
 import com.masonliu.base.SharedPre;
@@ -14,7 +13,7 @@ import com.masonliu.weex_container_demo.R;
 
 
 public class LauncherActivity extends Activity {
-    private static final String DEFAULT_VALUE = "http://198.56.12.12:10004/dist/pages/main.js";
+    private static final String DEFAULT_VALUE = "https://gitee.com/masonliu/MockData/raw/master/WeexHomeView.js";
     View view;
 
     @Override
@@ -45,6 +44,9 @@ public class LauncherActivity extends Activity {
 
 
     public void open(View view) {
-        WeexPageActivity.startFrom(this,SharedPre.getString("URL", DEFAULT_VALUE),null);
+        WeexPageActivity.startFrom(this,
+                //"file://local/weex/WeexHomeView.js",
+                SharedPre.getString("URL", DEFAULT_VALUE),
+                null);
     }
 }

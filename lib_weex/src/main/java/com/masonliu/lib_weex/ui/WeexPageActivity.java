@@ -100,7 +100,6 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
                     wrapUrl = mUri;
                 }
             }
-
         }
         refresh(wrapUrl);
     }
@@ -228,7 +227,7 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
 
     /**
      * assets文件： file://local/weex
-     * 存储文件： file://xx
+     * 存储文件： file:///xx
      * https地址： https://xxx
      * http地址： http://
      *
@@ -254,7 +253,7 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
              * pageName:自定义，一个标示符号。
              * url:支持如下
                  assets文件： file://local/weex
-                 存储文件： file://xx
+                 存储文件： file:///xx
                  https地址： https://xxx
                  http地址： http://
              * options:初始化时传入WEEX的参数，比如 bundle JS地址 用来指定远程静态资源的base url

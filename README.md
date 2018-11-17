@@ -9,9 +9,13 @@ WeexPageActivity.startFrom(
 ```
 
 # 一、Demo：
-http://www.digua.info
+DemoApk：https://gitee.com/masonliu/MockData/raw/master/WeexContainerDemo.apk
 
-https://github.com/MasonLiuChn/WeexExplorer
+作品：http://www.digua.info
+
+Weex工程：https://github.com/MasonLiuChn/WeexTemplate
+
+Weex工程：https://github.com/MasonLiuChn/WeexExplorer
 
 # 二、功能：
 1. Native跳转Weex
@@ -25,10 +29,11 @@ https://github.com/MasonLiuChn/WeexExplorer
 
 
 ### （一）Native跳转Weex
-1. 加载assets/weex下的文件(使用assets方式时，只支持放在assets/weex下)如：file://local/weex
-2. 加载存储空间内的文件，如：file://xx
+1. 加载assets/weex下的文件(使用assets方式时，只支持放在assets/weex下)如：file://local/weex/xx
+2. 加载存储空间内的文件，如：file:///xx
 3. 加载网络文件
     - Release环境下，加载网络文件的顺序是 a.查找缓存文件->b. 查找assets->c.下载网络文件，放在缓存
+    - Debug环境下，直接使用传入的uri
     - 使用LRU实现缓存，对Bundle实施缓存，默认缓存容量50
 ```java
 //example
@@ -157,7 +162,7 @@ repositories {
     maven { url "https://github.com/MasonLiuChn/MasonMavenRepository/raw/maven/releases" }
 }
 dependencies {
- compile 'com.github.MasonLiuChn:WeexContainer-Android:1.0.3'
+ compile 'com.github.MasonLiuChn:WeexContainer-Android:1.0.4'
 }
 ```
 ```java
