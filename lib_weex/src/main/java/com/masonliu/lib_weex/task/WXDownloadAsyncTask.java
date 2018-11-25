@@ -23,11 +23,14 @@ import static com.masonliu.lib_weex.manager.WXLoadAndCacheManager.WEEX_CACHE_BUN
 
 public class WXDownloadAsyncTask extends AsyncTask<Void, Void, String> {
     private String url;
+    private String bundleName;
+
     private WXLoadAndCacheManager.WXDownloadListener wxDownloadListener;
     private WXLoadAndCacheManager manager;
 
-    public WXDownloadAsyncTask(WXLoadAndCacheManager manager, String url, WXLoadAndCacheManager.WXDownloadListener wxDownloadListener) {
+    public WXDownloadAsyncTask(WXLoadAndCacheManager manager, String url,String bundleName, WXLoadAndCacheManager.WXDownloadListener wxDownloadListener) {
         this.url = url;
+        this.bundleName = bundleName;
         this.wxDownloadListener = wxDownloadListener;
         this.manager = manager;
     }
@@ -49,10 +52,10 @@ public class WXDownloadAsyncTask extends AsyncTask<Void, Void, String> {
     protected String doInBackground(Void... params) {
         try {
             //download
-            InputStream inputStream = download(url);
+            InputStream inputStream = download();
             //cache
-            cache(inputStream, url);
-            return manager.getCache(url);
+            cache(inputStream);
+            return manager.getCache(url,bundleName);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -70,17 +73,17 @@ public class WXDownloadAsyncTask extends AsyncTask<Void, Void, String> {
         }
     }
 
-    private InputStream download(String urlAddress) {
+    private InputStream download() {
         InputStream inputStream = null;
         try {
             // 创建URL对象
-            URL url = new URL(urlAddress);
-//            // 打开连接 获取连接对象
-//            URLConnection connection = url.openConnection();
-//            connection.setConnectTimeout(10000);
-//            connection.setReadTimeout(10000);
-//            // 从连接对象中获取网络连接中的输入字节流对象
-//            inputStream = connection.getInputStream();
+            //URL urlURL = new URL(url);
+            // 打开连接 获取连接对象
+            //URLConnection connection = url.openConnection();
+            //connection.setConnectTimeout(10000);
+            //connection.setReadTimeout(10000);
+            // 从连接对象中获取网络连接中的输入字节流对象
+            //inputStream = connection.getInputStream();
             Request request = new Request.Builder().url(url).build();
             Response response = WXLoadAndCacheManager.INSTANCE.getOkHttpClient().newCall(request).execute();
             inputStream = response.body().byteStream();
@@ -92,8 +95,8 @@ public class WXDownloadAsyncTask extends AsyncTask<Void, Void, String> {
         return null;
     }
 
-    private void cache(final InputStream inputStream, final String url) throws Exception {
-        File f = manager.getCacheFile(url);
+    private void cache(final InputStream inputStream) throws Exception {
+        File f = manager.getCacheFile(url,bundleName);
         if (f.exists()) {
             f.delete();
         }

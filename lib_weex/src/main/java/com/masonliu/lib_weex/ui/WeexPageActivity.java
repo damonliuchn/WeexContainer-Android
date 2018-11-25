@@ -31,12 +31,12 @@ import java.util.Map;
 public class WeexPageActivity extends AppCompatActivity implements IWXRenderListener {
     private static final String PAGE_NAME = "WeexContainer";
     private static final String KEY_URI = "URI";
-    private static final String KEY_BACKUPS_URI = "BACKUPS_URI";
+    private static final String KEY_BUNDLE_NAME = "BUNDLE_NAME";
     private WXSDKInstance mWXSDKInstance;
     private FrameLayout mContainer;
     private ProgressBar mProgress;
     private String mUri;
-    private String mBackupsUri;
+    private String mBundleName;
     private RefreshBroadcastReceiver mReceiver;
     private boolean renderSuccess;
     private Map<String, Object> options;
@@ -49,17 +49,35 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
      * 存储文件： file://xx
      * https地址： https://xxx
      * http地址： http://
-     * @param mBackupsUri
      */
-    public static void startFrom(Context activity, String uri, String mBackupsUri) {
+    public static void startFromWeex(Context activity, String uri,String instanceId) {
         if (TextUtils.isEmpty(uri)) {
             return;
         }
         uri = WXURLManager.INSTANCE.handle(uri);
+        //从url里取出bundleNameAndAssetsFilePrefix，md5
         Intent intent = new Intent(activity, WeexPageActivity.class);
         intent.putExtra(KEY_URI, uri);
-        intent.putExtra(KEY_BACKUPS_URI, mBackupsUri);
+        intent.putExtra(KEY_BUNDLE_NAME, "");
         activity.startActivity(intent);
+    }
+
+    /**
+     *
+     * @param activity
+     * @param uri
+     * assets文件： file://local/weex
+     * 存储文件： file://xx
+     * https地址： https://xxx
+     * http地址： http://
+     * @param bundleNameAndAssetsFilePrefix
+     */
+    public static void startFrom(Context activity, String uri, String bundleNameAndAssetsFilePrefix,String md5) {
+        if (TextUtils.isEmpty(uri)) {
+            return;
+        }
+        //封装url
+        startFromWeex(activity,uri,null);
     }
 
     @Override
@@ -72,7 +90,7 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
         mProgress = findViewById(R.id.weexc_progress);
 
         mUri = getIntent().getStringExtra(KEY_URI);
-        mBackupsUri = getIntent().getStringExtra(KEY_BACKUPS_URI);
+        mBundleName = getIntent().getStringExtra(KEY_BUNDLE_NAME);
 
         mWXSDKInstance = new WXSDKInstance(this);
         mWXSDKInstance.registerRenderListener(this);
@@ -88,9 +106,10 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
     private void init() {
         //获取缓存文件
         String wrapUrl = mUri;
-        if (!CommonUtil.isApkDebugable(this)) {//debug时不查找缓存
+        //debug时不查找缓存
+        if (!CommonUtil.isApkDebugable(this)) {
             //查找缓存文件
-            wrapUrl = WXLoadAndCacheManager.INSTANCE.getCache(mUri);
+            wrapUrl = WXLoadAndCacheManager.INSTANCE.getCache(mUri,mBundleName);
             if(TextUtils.isEmpty(wrapUrl)){
                 //查找asset文件
                 wrapUrl = getAssetsUri(mUri);
@@ -101,7 +120,7 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
                 }
             }
         }
-        refresh(wrapUrl);
+        refresh(wrapUrl,mBundleName);
     }
 
 
@@ -235,14 +254,14 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
      *
      * @param url
      */
-    public void refresh(String url) {
+    public void refresh(String url,final String mBundleName) {
         if (url.startsWith("http")) {
-            WXLoadAndCacheManager.INSTANCE.download(url,
+            WXLoadAndCacheManager.INSTANCE.download(url,mBundleName,
                     new WXDownloadListener() {
 
                         @Override
                         public void onSuccess(String localUrl) {
-                            refresh(localUrl);
+                            refresh(localUrl,mBundleName);
                         }
 
                         @Override
@@ -270,10 +289,11 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
     public void onException(WXSDKInstance instance, String errCode, String msg) {
         if (!CommonUtil.isApkDebugable(getApplicationContext())) {
             //删除缓存文件
-            WXLoadAndCacheManager.INSTANCE.deleteCache(mUri);
-            //使用mBackupsUri
-            if(!TextUtils.isEmpty(mBackupsUri)){
-                mUri = mBackupsUri;
+            WXLoadAndCacheManager.INSTANCE.deleteCache(mUri,mBundleName);
+            //使用mBundleName找到上一次可使用的bundle
+            WXLoadAndCacheManager.INSTANCE.getLastCache(mBundleName);
+            if(!TextUtils.isEmpty(WXLoadAndCacheManager.INSTANCE.getLastCache(mBundleName))){
+                mUri = mBundleName;
             }
             //重新加载
             init();

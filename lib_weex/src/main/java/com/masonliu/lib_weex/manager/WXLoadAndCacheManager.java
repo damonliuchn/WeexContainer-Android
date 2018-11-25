@@ -1,5 +1,7 @@
 package com.masonliu.lib_weex.manager;
 
+import android.text.TextUtils;
+
 import com.masonliu.lib_weex.task.WXDownloadAsyncTask;
 import com.squareup.okhttp.OkHttpClient;
 import com.taobao.weex.WXEnvironment;
@@ -46,31 +48,34 @@ public enum WXLoadAndCacheManager {
     /**
      * 获取本地JS路径，没有找到时返回null
      */
-    public String getCache(String uri) {
+    public String getCache(String uri,String bundleName) {
         if (uri.startsWith("file")) {
             return uri;
         }
-        File f = getCacheFile(uri);
+        File f = getCacheFile(uri,bundleName);
         if (f != null && f.exists()) {
             return "file://" + f.getAbsolutePath();
         }
         return null;
     }
 
-    public void deleteCache(String uri) {
+    public void deleteCache(String uri,String bundleName) {
         if (uri.startsWith("file")) {
             return;
         }
-        File f = getCacheFile(uri);
+        File f = getCacheFile(uri,bundleName);
         if (f != null && f.exists()) {
             f.delete();
         }
     }
 
-    public File getCacheFile(String mUri) {
+    public File getCacheFile(String mUri,String bundleName) {
+        if(TextUtils.isEmpty(bundleName)){
+            bundleName = "noBundleName";
+        }
         //String hostPath = mUri.split("\\?")[0];//问号分割
         //String fileName = Base64.encodeToString(hostPath.getBytes(), Base64.NO_PADDING | Base64.NO_WRAP | Base64.URL_SAFE);
-        String fileName = URLEncoder.encode(mUri).replace("%", "-");//支持全路径,replace%,防止后面代码decode如Uri.getPath
+        String fileName = bundleName + "-" +URLEncoder.encode(mUri).replace("%", "-");//支持全路径,replace%,防止后面代码decode如Uri.getPath
         // put into  lru cache
         File f = new File(WXEnvironment.sApplication.getCacheDir(), WEEX_CACHE_BUNDLE_PATH + fileName + ".js");
         if (f.exists()) {
@@ -79,8 +84,14 @@ public enum WXLoadAndCacheManager {
         return f;
     }
 
-    public void download(String url, WXDownloadListener wxDownloadListener) {
-        new WXDownloadAsyncTask(this, url, wxDownloadListener).executeOnMyExecutor();
+    public String getLastCache(String mBundleName) {
+        //去缓存文件夹里找
+        //去asset里找前缀为mBundleName的文件
+        return "";
+    }
+
+    public void download(String url,String bundleName,WXDownloadListener wxDownloadListener) {
+        new WXDownloadAsyncTask(this, url, bundleName,wxDownloadListener).executeOnMyExecutor();
     }
 
     public interface WXDownloadListener {

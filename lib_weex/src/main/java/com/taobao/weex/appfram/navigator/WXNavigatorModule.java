@@ -124,7 +124,7 @@ public class WXNavigatorModule extends WXModule {
 //                    intent.addCategory("com.taobao.android.intent.category.WEEX");
 //                    intent.putExtra("instanceId", this.mWXSDKInstance.getInstanceId());
 //                    this.mWXSDKInstance.getContext().startActivity(intent);
-                    WeexPageActivity.startFrom(mWXSDKInstance.getContext(), builder.build().toString(), mWXSDKInstance.getInstanceId());
+                    WeexPageActivity.startFromWeex(mWXSDKInstance.getContext(), builder.build().toString(), mWXSDKInstance.getInstanceId());
                     if(callback != null) {
                         callback.invoke("WX_SUCCESS");
                     }
