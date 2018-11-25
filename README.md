@@ -164,7 +164,7 @@ repositories {
     maven { url "https://github.com/MasonLiuChn/MasonMavenRepository/raw/maven/releases" }
 }
 dependencies {
- compile 'com.github.MasonLiuChn:WeexContainer-Android:1.1.0'
+ compile 'com.github.MasonLiuChn:WeexContainer-Android:1.1.1'
 }
 ```
 ```java
