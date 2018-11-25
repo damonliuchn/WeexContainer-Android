@@ -129,7 +129,7 @@ public class WXImgLoaderManager {
                      当第三种时，控件会根据bundle是否是远程bundle来拼上http:或者file:
                      */
                     String temp = url.replace("file://", "http://");
-                    WXImgLoaderManager.displayImage(view, temp, R.color.white, -1, -1);
+                    WXImgLoaderManager.displayImage(view, temp, android.R.color.white, -1, -1);
                 }
             }, 0);
         }

@@ -67,9 +67,9 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
         getSupportActionBar().hide();
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_container);
-        mContainer =  findViewById(R.id.container);
-        mProgress = findViewById(R.id.progress);
+        setContentView(R.layout.weexc_activity_container);
+        mContainer =  findViewById(R.id.weexc_container);
+        mProgress = findViewById(R.id.weexc_progress);
 
         mUri = getIntent().getStringExtra(KEY_URI);
         mBackupsUri = getIntent().getStringExtra(KEY_BACKUPS_URI);

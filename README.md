@@ -9,9 +9,9 @@ WeexPageActivity.startFrom(
 ```
 
 # 一、Demo：
-DemoApk：[DemoApk](https://raw.githubusercontent.com/MasonLiuChn/WeexContainer-Android/master/doc/WeexContainerDemo.apk)
+DemoApk：[DemoApk](https://raw.githubusercontent.com/MasonLiuChn/WeexContainer-Android/master/app/doc/WeexContainerDemo.apk)
 
-<img src="https://raw.githubusercontent.com/MasonLiuChn/WeexContainer-Android/master/doc/demo.gif" width="20%" height="20%" />
+<img src="https://raw.githubusercontent.com/MasonLiuChn/WeexContainer-Android/master/app/doc/demo.gif" width="20%" height="20%" />
 
 作品：http://www.digua.info
 
@@ -164,7 +164,7 @@ repositories {
     maven { url "https://github.com/MasonLiuChn/MasonMavenRepository/raw/maven/releases" }
 }
 dependencies {
- compile 'com.github.MasonLiuChn:WeexContainer-Android:1.0.4'
+ compile 'com.github.MasonLiuChn:WeexContainer-Android:1.1.0'
 }
 ```
 ```java
