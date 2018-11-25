@@ -160,11 +160,12 @@ android {
     }
 }
 repositories {
-    maven { url "https://jitpack.io" }
-    maven { url "https://github.com/MasonLiuChn/MasonMavenRepository/raw/maven/releases" }
+    maven {
+        maven { url "https://github.com/MasonLiuChn/MasonMavenRepository/raw/maven/releases" }
+    }
 }
 dependencies {
- compile 'com.github.MasonLiuChn:WeexContainer-Android:1.1.1'
+	compile 'com.masonliu:WeexContainer:1.1.2'
 }
 ```
 ```java

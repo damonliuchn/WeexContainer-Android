@@ -27,6 +27,7 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:3.0.1'
         classpath "com.alibaba:arouter-register:1.0.2"
+        classpath 'com.masonliu:gmaven:1.0.8'
     }
 }
 

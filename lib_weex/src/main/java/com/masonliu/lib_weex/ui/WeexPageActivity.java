@@ -191,6 +191,8 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
     public void onBackPressed() {
         if (mWXSDKInstance != null && renderSuccess) {
             mWXSDKInstance.fireGlobalEventCallback("androidBack", new HashMap<String, Object>());
+            //兼容老版本bundle文件
+            mWXSDKInstance.fireGlobalEventCallback("androidback", new HashMap<String, Object>());
         } else {
             super.onBackPressed();
         }

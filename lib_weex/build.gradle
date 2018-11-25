@@ -24,3 +24,20 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 }
+
+apply plugin: 'maven'
+apply plugin: 'gmaven'
+gmavenGitRepo {
+    organization = 'MasonLiuChn'
+    repository = 'MasonMavenRepository'
+    branch = 'maven'
+    type = 'releases'
+}
+
+gmavenLibrary {
+    group = 'com.masonliu'
+    artifactId = 'WeexContainer'
+    version = '1.1.2'
+    packaging = 'aar'
+    description = "description"
+}
