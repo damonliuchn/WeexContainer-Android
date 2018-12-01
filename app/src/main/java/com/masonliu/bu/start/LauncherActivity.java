@@ -47,6 +47,6 @@ public class LauncherActivity extends Activity {
         WeexPageActivity.startFrom(this,
                 //"file://local/weex/WeexHomeView.js",
                 SharedPre.getString("URL", DEFAULT_VALUE),
-                null);
+                null, null);
     }
 }
