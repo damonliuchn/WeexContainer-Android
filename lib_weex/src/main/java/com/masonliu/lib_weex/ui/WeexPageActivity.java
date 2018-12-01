@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -27,11 +28,16 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+
+import static com.masonliu.lib_weex.manager.WXLoadAndCacheManager.WEEX_ASSETS_ALL_PREFIX;
+import static com.masonliu.lib_weex.manager.WXLoadAndCacheManager.WEEX_ASSETS_VIRTUAL_PREFIX;
 
 public class WeexPageActivity extends AppCompatActivity implements IWXRenderListener {
     private static final String PAGE_NAME = "WeexContainer";
     private static final String KEY_URI = "URI";
     private static final String KEY_BUNDLE_NAME = "BUNDLE_NAME";
+    private static final String KEY_BUNDLE_MD5 = "BUNDLE_MD5";
     private WXSDKInstance mWXSDKInstance;
     private FrameLayout mContainer;
     private ProgressBar mProgress;
@@ -42,42 +48,71 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
     private Map<String, Object> options;
 
     /**
-     *
      * @param activity
-     * @param uri
-     * assets文件： file://local/weex
-     * 存储文件： file://xx
-     * https地址： https://xxx
-     * http地址： http://
+     * @param uri      assets文件： file://local/weex
+     *                 存储文件： file://xx
+     *                 https地址： https://xxx
+     *                 http地址： http://
      */
-    public static void startFromWeex(Context activity, String uri,String instanceId) {
+    public static void startFromWeex(Context activity, String uri, String instanceId) {
         if (TextUtils.isEmpty(uri)) {
             return;
         }
         uri = WXURLManager.INSTANCE.handle(uri);
+        String bundleNameAndAssetsFilePrefix = "";
+        String bundleMd5 = "";
         //从url里取出bundleNameAndAssetsFilePrefix，md5
+        if (uri.startsWith("http")) {
+            Uri old = Uri.parse(uri);
+            Uri.Builder newBuilder = Uri.parse(uri).buildUpon();
+            newBuilder.clearQuery();
+            Set<String> names = old.getQueryParameterNames();
+            if (names != null && names.size() > 0) {
+                for (String key : names) {
+                    String value = old.getQueryParameter(key);
+                    if ("weexcBundleName".equals(key)) {
+                        bundleNameAndAssetsFilePrefix = value;
+                    } else if ("weexcBundleMd5".equals(key)) {
+                        bundleMd5 = value;
+                    } else {
+                        newBuilder.appendQueryParameter(key, value);
+                    }
+                }
+            }
+            uri = newBuilder.build().toString();
+        }
         Intent intent = new Intent(activity, WeexPageActivity.class);
         intent.putExtra(KEY_URI, uri);
-        intent.putExtra(KEY_BUNDLE_NAME, "");
+        intent.putExtra(KEY_BUNDLE_NAME, bundleNameAndAssetsFilePrefix);
+        intent.putExtra(KEY_BUNDLE_MD5, bundleMd5);
+
         activity.startActivity(intent);
     }
 
     /**
-     *
      * @param activity
-     * @param uri
-     * assets文件： file://local/weex
-     * 存储文件： file://xx
-     * https地址： https://xxx
-     * http地址： http://
+     * @param uri                           assets文件： file://local/weex
+     *                                      存储文件： file://xx
+     *                                      https地址： https://xxx
+     *                                      http地址： http://
      * @param bundleNameAndAssetsFilePrefix
      */
-    public static void startFrom(Context activity, String uri, String bundleNameAndAssetsFilePrefix,String md5) {
+    public static void startFrom(Context activity, String uri, String bundleNameAndAssetsFilePrefix, String bundleMd5) {
         if (TextUtils.isEmpty(uri)) {
             return;
         }
         //封装url
-        startFromWeex(activity,uri,null);
+        if (uri.startsWith("http")) {
+            Uri.Builder builder = Uri.parse(uri).buildUpon();
+            if (!TextUtils.isEmpty(bundleNameAndAssetsFilePrefix)) {
+                builder.appendQueryParameter("weexcBundleName", bundleNameAndAssetsFilePrefix);
+            }
+            if (!TextUtils.isEmpty(bundleMd5)) {
+                builder.appendQueryParameter("weexcBundleMd5", bundleMd5);
+            }
+            uri = builder.build().toString();
+        }
+        startFromWeex(activity, uri, null);
     }
 
     @Override
@@ -86,7 +121,7 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
         getSupportActionBar().hide();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.weexc_activity_container);
-        mContainer =  findViewById(R.id.weexc_container);
+        mContainer = findViewById(R.id.weexc_container);
         mProgress = findViewById(R.id.weexc_progress);
 
         mUri = getIntent().getStringExtra(KEY_URI);
@@ -97,7 +132,7 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
 
         options = new HashMap<>();
         options.put(WXSDKInstance.BUNDLE_URL, mUri);
-        CommonUtil.appendSysOption(options,this);
+        CommonUtil.appendSysOption(options, this);
 
         init();
         registerBroadcastReceiver();
@@ -109,18 +144,18 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
         //debug时不查找缓存
         if (!CommonUtil.isApkDebugable(this)) {
             //查找缓存文件
-            wrapUrl = WXLoadAndCacheManager.INSTANCE.getCache(mUri,mBundleName);
-            if(TextUtils.isEmpty(wrapUrl)){
+            wrapUrl = WXLoadAndCacheManager.INSTANCE.getCache(mUri, mBundleName);
+            if (TextUtils.isEmpty(wrapUrl)) {
                 //查找asset文件
                 wrapUrl = getAssetsUri(mUri);
-                if(TextUtils.isEmpty(wrapUrl)){
+                if (TextUtils.isEmpty(wrapUrl)) {
                     //如果assets没有找到则还是使用原始uri
                     //如果有则免去第一次的下载时间
                     wrapUrl = mUri;
                 }
             }
         }
-        refresh(wrapUrl,mBundleName);
+        refresh(wrapUrl, mBundleName);
     }
 
 
@@ -141,11 +176,12 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
 
     /**
      * 通过url里的path名获取assetsUri，获取url里斜杠后边，问号前面的名字
+     *
      * @param uri
      * @return
      */
     private String getAssetsUri(String uri) {
-        if(uri.startsWith("file")){
+        if (uri.startsWith("file")) {
             return uri;
         }
         //通过path名获取assetsUri，获取url里斜杠后边，问号前面的名字
@@ -154,7 +190,7 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
             URI uriTemp = new URI(uri);
             String[] names = uriTemp.getPath().split("/");
             String name = names[names.length - 1];
-            assetsUrl = "file://local/weex/" + name;
+            assetsUrl = WEEX_ASSETS_ALL_PREFIX + name;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -162,7 +198,7 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
         boolean assetsFileExist = false;
         InputStream in = null;
         try {
-            in = getResources().getAssets().open(assetsUrl.replace("file://local/", ""));
+            in = getResources().getAssets().open(assetsUrl.replace(WEEX_ASSETS_VIRTUAL_PREFIX, ""));
             assetsFileExist = true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -254,14 +290,14 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
      *
      * @param url
      */
-    public void refresh(String url,final String mBundleName) {
+    public void refresh(String url, final String mBundleName) {
         if (url.startsWith("http")) {
-            WXLoadAndCacheManager.INSTANCE.download(url,mBundleName,
+            WXLoadAndCacheManager.INSTANCE.download(url, mBundleName,
                     new WXDownloadListener() {
 
                         @Override
                         public void onSuccess(String localUrl) {
-                            refresh(localUrl,mBundleName);
+                            refresh(localUrl, mBundleName);
                         }
 
                         @Override
@@ -273,10 +309,10 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
             /**
              * pageName:自定义，一个标示符号。
              * url:支持如下
-                 assets文件： file://local/weex
-                 存储文件： file:///xx
-                 https地址： https://xxx
-                 http地址： http://
+             assets文件： file://local/weex
+             存储文件： file:///xx
+             https地址： https://xxx
+             http地址： http://
              * options:初始化时传入WEEX的参数，比如 bundle JS地址 用来指定远程静态资源的base url
              * flag:渲染策略。WXRenderStrategy.APPEND_ASYNC:异步策略先返回外层View，其他View渲染完成后调用onRenderSuccess。
              *  WXRenderStrategy.APPEND_ONCE 所有控件渲染完后后一次性返回。
@@ -289,11 +325,11 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
     public void onException(WXSDKInstance instance, String errCode, String msg) {
         if (!CommonUtil.isApkDebugable(getApplicationContext())) {
             //删除缓存文件
-            WXLoadAndCacheManager.INSTANCE.deleteCache(mUri,mBundleName);
+            WXLoadAndCacheManager.INSTANCE.deleteCache(mUri, mBundleName);
             //使用mBundleName找到上一次可使用的bundle
-            WXLoadAndCacheManager.INSTANCE.getLastCache(mBundleName);
-            if(!TextUtils.isEmpty(WXLoadAndCacheManager.INSTANCE.getLastCache(mBundleName))){
-                mUri = mBundleName;
+            String lastCachePath = WXLoadAndCacheManager.INSTANCE.getLastCache(mBundleName);
+            if (!TextUtils.isEmpty(lastCachePath)) {
+                mUri = lastCachePath;
             }
             //重新加载
             init();

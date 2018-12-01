@@ -5,6 +5,7 @@
 WeexPageActivity.startFrom(
                 LauncherActivity.this,
                 "http://192.168.12.20:10004/dist/pages/main.js",
+                null,
                 null);
 ```
 
@@ -35,6 +36,8 @@ Weex工程：https://github.com/MasonLiuChn/WeexExplorer
 2. 加载存储空间内的文件，如：file:///xx
 3. 加载网络文件
     - Release环境下，加载网络文件的顺序是 a.查找缓存文件->b. 查找assets->c.下载网络文件，放在缓存
+    - 如果下载失败，则根据bundleName查找上一次可用的缓存文件，
+    - 如果上一次可用的缓存文件也未找到，则去assets/weex下查找以bundleName为前缀的第一个文件作为可用文件
     - Debug环境下，直接使用传入的uri
     - 使用LRU实现缓存，对Bundle实施缓存，默认缓存容量50
 ```java
@@ -42,7 +45,8 @@ Weex工程：https://github.com/MasonLiuChn/WeexExplorer
 WeexPageActivity.startFrom(
                 LauncherActivity.this,
                 "http://192.168.12.20:10004/dist/pages/main.js",
-                "file://local/weex/main.js");
+                "main",
+                null);
 
 ```
 ### （二）Native通知Weex
@@ -70,10 +74,11 @@ export default {
 ```
 ### （三）Weex跳转Weex，实现MPA多页面应用
 - 1、Weex工程正常使用weex提供的navigator做页面跳转
+>跳转的url上可以添加weexcBundleName、weexcBundleMd5参数，如下：
 ```java
 var navigator = weex.requireModule('navigator')
 navigator.push({
-          url: 'http://dotwe.org/raw/dist/519962541fcf6acd911986357ad9c2ed.js',
+          url: 'http://dotwe.org/raw/dist/519962541fcf6acd911986357ad9c2ed.js?weexcBundleName=xxx&weexcBundleMd5=xxx',
           animated: "true"
         })
 ```
@@ -165,7 +170,7 @@ repositories {
     }
 }
 dependencies {
-	compile 'com.masonliu:WeexContainer:1.1.2'
+	compile 'com.masonliu:WeexContainer:1.1.3'
 }
 ```
 ```java
@@ -174,7 +179,7 @@ dependencies {
 ```
 ```java
 WeexPageActivity.startFrom(LauncherActivity.this,
-                "http://192.168.12.20:10004/dist/pages/main.js",null);
+                "http://192.168.12.20:10004/dist/pages/main.js",null,null);
 ```
 
 ### （二）高级用法
