@@ -2,6 +2,8 @@ package com.masonliu.lib_weex.module;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
 import android.text.TextUtils;
 
 import com.masonliu.lib_weex.manager.WXCommonModuleManager;
@@ -13,6 +15,9 @@ import com.taobao.weex.annotation.JSMethod;
 import com.taobao.weex.bridge.JSCallback;
 import com.taobao.weex.common.WXModule;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,7 +60,7 @@ public class CommonModule extends WXModule {
     /**
      * 内置桥接功能
      **/
-    @JSMethod(uiThread = false)
+    @JSMethod(uiThread = false)//这个地方weex会自动开一个子线程执行方法
     public void nativeHttpGet(String url, JSCallback callback) {
         nativeHttpGetWithCharset(url, null, callback);
     }
@@ -102,5 +107,41 @@ public class CommonModule extends WXModule {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @JSMethod(uiThread = false)
+    public void getBuildInfo(JSCallback callback) {
+        Map<String, Object> map = new HashMap<>();
+        //BUILD_PROP
+        String buildProp = "";
+        try {
+            buildProp = CommonUtil.streamToString(
+                    new FileInputStream(
+                            new File(Environment.getRootDirectory(), "build.prop")),
+                    null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        map.put("androidBuildProp", buildProp);
+
+        //BUILD_CLASS
+        String buildClass = "";
+        try {
+            StringBuilder sbBuilder = new StringBuilder();
+            Field[] fields = Build.class.getDeclaredFields();
+            for (Field field : fields) {
+                field.setAccessible(true);
+                try {
+                    sbBuilder.append(field.getName() + ":" + field.get(null).toString() + "\n");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            buildClass = sbBuilder.toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        map.put("androidBuildClass", buildClass);
+        callback.invoke(map);
     }
 }

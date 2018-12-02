@@ -4,20 +4,19 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.os.Build;
-import android.os.Environment;
+import android.telephony.TelephonyManager;
+import android.text.TextUtils;
 
 import com.masonliu.lib_weex.generated.BuildConfig;
 
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Field;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class CommonUtil {
@@ -104,8 +103,8 @@ public class CommonUtil {
             sysOptionMap = new HashMap<>();
             sysOptionMap.put("debug", CommonUtil.isApkDebugable(context));
             sysOptionMap.put("versionCode", getVersionCode(context));
-            sysOptionMap.put("weexContainerVersionCode", BuildConfig.VERSION_CODE);
-            sysOptionMap.put("weexContainerVersionName", BuildConfig.VERSION_NAME);
+            sysOptionMap.put("weexcVersionCode", BuildConfig.VERSION_CODE);
+            sysOptionMap.put("weexcVersionName", BuildConfig.VERSION_NAME);
 
             //STATUS_BAR_HEIGHT
             int height = 0;
@@ -119,36 +118,20 @@ public class CommonUtil {
             }
             sysOptionMap.put("androidStatusBarHeight", height);
 
-            //BUILD_PROP
-            String buildProp = "";
-            try {
-                buildProp = CommonUtil.streamToString(
-                        new FileInputStream(
-                                new File(Environment.getRootDirectory(), "build.prop")),
-                        null);
-            } catch (Exception e) {
-                e.printStackTrace();
+            //国家代码
+            String countryCode;
+            TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+            String countryIso = tm.getSimCountryIso();//返回SIM卡提供商的国家代码
+            if (!TextUtils.isEmpty(countryIso)) {
+                countryCode = countryIso;
+            } else {
+                countryCode = Locale.getDefault().getCountry(); //CN
             }
-            sysOptionMap.put("androidBuildProp", buildProp);
+            sysOptionMap.put("countryCode", countryCode);
 
-            //BUILD_CLASS
-            String buildClass = "";
-            try {
-                StringBuilder sbBuilder = new StringBuilder();
-                Field[] fields = Build.class.getDeclaredFields();
-                for (Field field : fields) {
-                    field.setAccessible(true);
-                    try {
-                        sbBuilder.append(field.getName() + ":" + field.get(null).toString() + "\n");
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-                buildClass = sbBuilder.toString();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            sysOptionMap.put("androidBuildClass", buildClass);
+            //获取系统当前使用的语言
+            Locale locale = Locale.getDefault();
+            sysOptionMap.put("language", locale.getLanguage() + "-" + locale.getCountry());
         }
         map.putAll(sysOptionMap);
     }
