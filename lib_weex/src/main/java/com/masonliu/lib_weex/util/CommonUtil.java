@@ -2,6 +2,8 @@ package com.masonliu.lib_weex.util;
 
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Environment;
 
@@ -15,6 +17,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.Map;
 
 public class CommonUtil {
@@ -23,6 +26,7 @@ public class CommonUtil {
     private static final int CHAR_SIZE = 128;
     private static final String DECODING = "utf-8";
     private static Boolean isApkDebug;
+    private static Map<String, Object> sysOptionMap;
 
     private CommonUtil() {
     }
@@ -83,53 +87,70 @@ public class CommonUtil {
         return result;
     }
 
+    private static int getVersionCode(final Context con) {
+        int version = 1;
+        try {
+            PackageManager packageManager = con.getPackageManager();
+            PackageInfo packageInfo = packageManager.getPackageInfo(con.getPackageName(), 0);
+            version = packageInfo.versionCode;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return version;
+    }
 
     public static void appendSysOption(Map<String, Object> map, Context context) {
-        map.put("debug", CommonUtil.isApkDebugable(context));
-        map.put("weexContainerVersionCode", BuildConfig.VERSION_CODE);
-        map.put("weexContainerVersionName", BuildConfig.VERSION_NAME);
+        if (sysOptionMap == null) {
+            sysOptionMap = new HashMap<>();
+            sysOptionMap.put("debug", CommonUtil.isApkDebugable(context));
+            sysOptionMap.put("applicationId", context.getPackageName());
+            sysOptionMap.put("versionCode", getVersionCode(context));
+            sysOptionMap.put("weexContainerVersionCode", BuildConfig.VERSION_CODE);
+            sysOptionMap.put("weexContainerVersionName", BuildConfig.VERSION_NAME);
 
-        //STATUS_BAR_HEIGHT
-        int height = 0;
-        try {
-            int resourceId = context.getResources().getIdentifier("status_bar_height", "dimen", "android");
-            if (resourceId > 0) {
-                height = context.getResources().getDimensionPixelSize(resourceId);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        map.put("androidStatusBarHeight", height);
-
-        //BUILD_PROP
-        String buildProp = "";
-        try {
-            buildProp = CommonUtil.streamToString(
-                    new FileInputStream(
-                            new File(Environment.getRootDirectory(), "build.prop")),
-                    null);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        map.put("androidBuildProp", buildProp);
-
-        //BUILD_CLASS
-        String buildClass = "";
-        try {
-            StringBuilder sbBuilder = new StringBuilder();
-            Field[] fields = Build.class.getDeclaredFields();
-            for (Field field : fields) {
-                field.setAccessible(true);
-                try {
-                    sbBuilder.append(field.getName() + ":" + field.get(null).toString() + "\n");
-                } catch (Exception e) {
-                    e.printStackTrace();
+            //STATUS_BAR_HEIGHT
+            int height = 0;
+            try {
+                int resourceId = context.getResources().getIdentifier("status_bar_height", "dimen", "android");
+                if (resourceId > 0) {
+                    height = context.getResources().getDimensionPixelSize(resourceId);
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            buildClass = sbBuilder.toString();
-        } catch (Exception e) {
-            e.printStackTrace();
+            sysOptionMap.put("androidStatusBarHeight", height);
+
+            //BUILD_PROP
+            String buildProp = "";
+            try {
+                buildProp = CommonUtil.streamToString(
+                        new FileInputStream(
+                                new File(Environment.getRootDirectory(), "build.prop")),
+                        null);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            sysOptionMap.put("androidBuildProp", buildProp);
+
+            //BUILD_CLASS
+            String buildClass = "";
+            try {
+                StringBuilder sbBuilder = new StringBuilder();
+                Field[] fields = Build.class.getDeclaredFields();
+                for (Field field : fields) {
+                    field.setAccessible(true);
+                    try {
+                        sbBuilder.append(field.getName() + ":" + field.get(null).toString() + "\n");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                buildClass = sbBuilder.toString();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            sysOptionMap.put("androidBuildClass", buildClass);
         }
-        map.put("androidBuildClass", buildClass);
+        map.putAll(sysOptionMap);
     }
 }
