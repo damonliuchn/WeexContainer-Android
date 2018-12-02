@@ -6,6 +6,8 @@ android {
     defaultConfig {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.libWeexVersionCode
+        versionName rootProject.ext.libWeexVersionName
     }
 
     buildTypes {
@@ -37,7 +39,7 @@ gmavenGitRepo {
 gmavenLibrary {
     group = 'com.masonliu'
     artifactId = 'weex-container'
-    version = '1.1.2'
+    version = rootProject.ext.libWeexVersionName
     packaging = 'aar'
     description = "description"
 }

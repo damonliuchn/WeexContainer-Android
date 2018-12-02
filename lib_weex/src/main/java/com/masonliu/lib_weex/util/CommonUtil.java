@@ -103,7 +103,6 @@ public class CommonUtil {
         if (sysOptionMap == null) {
             sysOptionMap = new HashMap<>();
             sysOptionMap.put("debug", CommonUtil.isApkDebugable(context));
-            sysOptionMap.put("applicationId", context.getPackageName());
             sysOptionMap.put("versionCode", getVersionCode(context));
             sysOptionMap.put("weexContainerVersionCode", BuildConfig.VERSION_CODE);
             sysOptionMap.put("weexContainerVersionName", BuildConfig.VERSION_NAME);
