@@ -12,7 +12,6 @@ import com.taobao.weex.WXEnvironment;
 
 import java.io.File;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.concurrent.Executors;
 
 import static com.masonliu.lib_weex.manager.WXLoadAndCacheManager.WEEX_CACHE_BUNDLE_PATH;
@@ -28,7 +27,7 @@ public class WXDownloadAsyncTask extends AsyncTask<Void, Void, String> {
     private WXLoadAndCacheManager.WXDownloadListener wxDownloadListener;
     private WXLoadAndCacheManager manager;
 
-    public WXDownloadAsyncTask(WXLoadAndCacheManager manager, String url,String bundleName, WXLoadAndCacheManager.WXDownloadListener wxDownloadListener) {
+    public WXDownloadAsyncTask(WXLoadAndCacheManager manager, String url, String bundleName, WXLoadAndCacheManager.WXDownloadListener wxDownloadListener) {
         this.url = url;
         this.bundleName = bundleName;
         this.wxDownloadListener = wxDownloadListener;
@@ -55,7 +54,7 @@ public class WXDownloadAsyncTask extends AsyncTask<Void, Void, String> {
             InputStream inputStream = download();
             //cache
             cache(inputStream);
-            return manager.getCache(url,bundleName);
+            return manager.getCache(url, bundleName);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -86,7 +85,9 @@ public class WXDownloadAsyncTask extends AsyncTask<Void, Void, String> {
             //inputStream = connection.getInputStream();
             Request request = new Request.Builder().url(url).build();
             Response response = WXLoadAndCacheManager.INSTANCE.getOkHttpClient().newCall(request).execute();
-            inputStream = response.body().byteStream();
+            if (response.code() >= 200 && response.code() < 300) {
+                inputStream = response.body().byteStream();
+            }
             return inputStream;
         } catch (Exception e) {
             e.printStackTrace();
@@ -96,7 +97,7 @@ public class WXDownloadAsyncTask extends AsyncTask<Void, Void, String> {
     }
 
     private void cache(final InputStream inputStream) throws Exception {
-        File f = manager.getCacheFile(url,bundleName);
+        File f = manager.getCacheFile(url, bundleName);
         if (f.exists()) {
             f.delete();
         }

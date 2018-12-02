@@ -37,7 +37,7 @@ public class LauncherActivity extends Activity {
 
             @Override
             public void afterTextChanged(Editable editable) {
-                SharedPre.set("host", editable.toString());
+                SharedPre.set("URL", editable.toString());
             }
         });
     }
@@ -47,6 +47,6 @@ public class LauncherActivity extends Activity {
         WeexPageActivity.startFrom(this,
                 //"file://local/weex/WeexHomeView.js",
                 SharedPre.getString("URL", DEFAULT_VALUE),
-                null, null);
+                "WeexAboutView", null);
     }
 }

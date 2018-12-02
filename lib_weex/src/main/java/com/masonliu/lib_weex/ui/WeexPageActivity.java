@@ -127,18 +127,16 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
         mUri = getIntent().getStringExtra(KEY_URI);
         mBundleName = getIntent().getStringExtra(KEY_BUNDLE_NAME);
 
-        mWXSDKInstance = new WXSDKInstance(this);
-        mWXSDKInstance.registerRenderListener(this);
-
-        options = new HashMap<>();
-        options.put(WXSDKInstance.BUNDLE_URL, mUri);
-        CommonUtil.appendSysOption(options, this);
-
         init();
         registerBroadcastReceiver();
     }
 
     private void init() {
+        mWXSDKInstance = new WXSDKInstance(WeexPageActivity.this);
+        mWXSDKInstance.registerRenderListener(WeexPageActivity.this);
+        options = new HashMap<>();
+        options.put(WXSDKInstance.BUNDLE_URL, mUri);
+        CommonUtil.appendSysOption(options, this);
         //获取缓存文件
         String wrapUrl = mUri;
         //debug时不查找缓存
@@ -342,8 +340,6 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
         public void onReceive(Context context, Intent intent) {
             if (IWXDebugProxy.ACTION_INSTANCE_RELOAD.equals(intent.getAction()) ||
                     IWXDebugProxy.ACTION_DEBUG_INSTANCE_REFRESH.equals(intent.getAction())) {
-                mWXSDKInstance = new WXSDKInstance(WeexPageActivity.this);
-                mWXSDKInstance.registerRenderListener(WeexPageActivity.this);
                 init();
             }
         }
