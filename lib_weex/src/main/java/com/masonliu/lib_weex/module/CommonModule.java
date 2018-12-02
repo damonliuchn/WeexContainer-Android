@@ -2,6 +2,7 @@ package com.masonliu.lib_weex.module;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.text.TextUtils;
 
 import com.masonliu.lib_weex.manager.WXCommonModuleManager;
 import com.masonliu.lib_weex.manager.WXLoadAndCacheManager;
@@ -56,17 +57,22 @@ public class CommonModule extends WXModule {
      **/
     @JSMethod(uiThread = false)
     public void nativeHttpGet(String url, JSCallback callback) {
-        nativeHttpGet(url, "UTF-8", callback);
+        nativeHttpGetWithCharset(url, null, callback);
     }
 
-    @JSMethod(uiThread = false)
-    public void nativeHttpGet(String url, String charset, JSCallback callback) {
+    @JSMethod(uiThread = false)//在java端如果有两个相同名字的方法，weex端不能通过参数的不同区分拿一个，会默认调用参数多的那一个
+    public void nativeHttpGetWithCharset(String url, String charset, JSCallback callback) {
         Map<String, Object> map = new HashMap<>();
         try {
             Request request = new Request.Builder().url(url).build();
             Response response = WXLoadAndCacheManager.INSTANCE.getOkHttpClient().newCall(request).execute();
             map.put("status", response.code());
-            String data = CommonUtil.streamToString(response.body().byteStream(), charset);
+            String data;
+            if (TextUtils.isEmpty(charset)) {
+                data = response.body().string();//自己会到responsebody里找charset
+            } else {
+                data = CommonUtil.streamToString(response.body().byteStream(), charset);
+            }
             map.put("data", data);
             if (response.isSuccessful()) {
                 map.put("ok", true);

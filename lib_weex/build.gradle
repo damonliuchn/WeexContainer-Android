@@ -1,13 +1,17 @@
 apply plugin: 'com.android.library'
 apply from: '../lib_weex/weex_android.gradle'
+ext {
+    libWeexVersionCode = 13
+    libWeexVersionName = "1.1.3"
+}
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
     defaultConfig {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode rootProject.ext.libWeexVersionCode
-        versionName rootProject.ext.libWeexVersionName
+        versionCode project.ext.libWeexVersionCode
+        versionName project.ext.libWeexVersionName
     }
 
     buildTypes {
@@ -39,7 +43,7 @@ gmavenGitRepo {
 gmavenLibrary {
     group = 'com.masonliu'
     artifactId = 'weex-container'
-    version = rootProject.ext.libWeexVersionName
+    version = project.ext.libWeexVersionName
     packaging = 'aar'
     description = "description"
 }
