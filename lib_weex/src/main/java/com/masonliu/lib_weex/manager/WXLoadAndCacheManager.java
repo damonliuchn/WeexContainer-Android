@@ -115,7 +115,7 @@ public enum WXLoadAndCacheManager {
                 });
                 return files[0].getAbsolutePath();
             } else {
-                String[] assetsFiles = WXEnvironment.sApplication.getAssets().list(WEEX_ASSETS_TRUE_PATH);
+                String[] assetsFiles = WXEnvironment.sApplication.getAssets().list("weex");
                 for (int i = 0; assetsFiles != null && i < assetsFiles.length; i++) {
                     if (assetsFiles[i].startsWith(mBundleName)) {
                         return WEEX_ASSETS_ALL_PREFIX + assetsFiles[i];

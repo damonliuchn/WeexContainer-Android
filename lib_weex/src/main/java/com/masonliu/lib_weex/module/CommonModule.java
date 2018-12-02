@@ -2,10 +2,7 @@ package com.masonliu.lib_weex.module;
 
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
-import android.os.Environment;
 
-import com.masonliu.lib_weex.generated.BuildConfig;
 import com.masonliu.lib_weex.manager.WXCommonModuleManager;
 import com.masonliu.lib_weex.manager.WXLoadAndCacheManager;
 import com.masonliu.lib_weex.util.CommonUtil;
@@ -15,12 +12,8 @@ import com.taobao.weex.annotation.JSMethod;
 import com.taobao.weex.bridge.JSCallback;
 import com.taobao.weex.common.WXModule;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 /**
  * Created by liumeng02 on 2018/3/26.
@@ -63,12 +56,18 @@ public class CommonModule extends WXModule {
      **/
     @JSMethod(uiThread = false)
     public void nativeHttpGet(String url, JSCallback callback) {
+        nativeHttpGet(url, "UTF-8", callback);
+    }
+
+    @JSMethod(uiThread = false)
+    public void nativeHttpGet(String url, String charset, JSCallback callback) {
         Map<String, Object> map = new HashMap<>();
         try {
             Request request = new Request.Builder().url(url).build();
             Response response = WXLoadAndCacheManager.INSTANCE.getOkHttpClient().newCall(request).execute();
             map.put("status", response.code());
-            map.put("data", response.body().string());
+            String data = CommonUtil.streamToString(response.body().byteStream(), charset);
+            map.put("data", data);
             if (response.isSuccessful()) {
                 map.put("ok", true);
             } else {
@@ -88,13 +87,13 @@ public class CommonModule extends WXModule {
      **/
     @JSMethod(uiThread = true)
     public void openBrowser(String url) {
-        try{
-            Intent intent= new Intent();
+        try {
+            Intent intent = new Intent();
             intent.setAction("android.intent.action.VIEW");
             Uri uri = Uri.parse(url);
             intent.setData(uri);
             this.mWXSDKInstance.getContext().startActivity(intent);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

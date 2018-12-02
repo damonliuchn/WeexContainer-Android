@@ -2,29 +2,19 @@ package com.masonliu.lib_weex.util;
 
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Environment;
-import android.text.TextUtils;
 
 import com.masonliu.lib_weex.generated.BuildConfig;
-import com.taobao.weex.bridge.JSCallback;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
-import java.util.HashMap;
 import java.util.Map;
 
 public class CommonUtil {
@@ -78,30 +68,23 @@ public class CommonUtil {
         closeQuietly(outStream);
     }
 
-    public static String streamToString(InputStream is, String decoding) {
-        StringBuilder sb = new StringBuilder();
-        InputStreamReader isr = null;
-        try {
-            if (!TextUtils.isEmpty(decoding)) {
-                isr = new InputStreamReader(is, decoding);
-            } else {
-                isr = new InputStreamReader(is, DECODING);
-            }
-            char[] buf = new char[CHAR_SIZE];
-            int hasRead = 0;
-            while ((hasRead = isr.read(buf)) > 0) {
-                sb.append(buf, 0, hasRead);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }finally {
-            closeQuietly(isr);
-            closeQuietly(is);
+    //stream是个中转
+    public static String streamToString(InputStream inputStream, String charset) throws Exception {
+        ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+        byte[] data = new byte[BUFFER_LENGTH];
+        int count = -1;
+        while ((count = inputStream.read(data, 0, BUFFER_LENGTH)) != -1) {
+            outStream.write(data, 0, count);
         }
-        return sb.toString();
+        data = null;
+        closeQuietly(inputStream);
+        String result = new String(outStream.toByteArray(), charset);
+        closeQuietly(outStream);
+        return result;
     }
 
-    public static void appendSysOption(Map<String, Object> map,Context context) {
+
+    public static void appendSysOption(Map<String, Object> map, Context context) {
         map.put("debug", CommonUtil.isApkDebugable(context));
         map.put("weexContainerVersionCode", BuildConfig.VERSION_CODE);
         map.put("weexContainerVersionName", BuildConfig.VERSION_NAME);
@@ -135,10 +118,10 @@ public class CommonUtil {
         try {
             StringBuilder sbBuilder = new StringBuilder();
             Field[] fields = Build.class.getDeclaredFields();
-            for(Field field:fields){
+            for (Field field : fields) {
                 field.setAccessible(true);
                 try {
-                    sbBuilder.append(field.getName()+":"+field.get(null).toString()+"\n");
+                    sbBuilder.append(field.getName() + ":" + field.get(null).toString() + "\n");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
