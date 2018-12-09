@@ -23,15 +23,18 @@ import static com.masonliu.lib_weex.manager.WXLoadAndCacheManager.WEEX_CACHE_BUN
 public class WXDownloadAsyncTask extends AsyncTask<Void, Void, String> {
     private String url;
     private String bundleName;
+    private String bundleMd5;
+
 
     private WXLoadAndCacheManager.WXDownloadListener wxDownloadListener;
     private WXLoadAndCacheManager manager;
 
-    public WXDownloadAsyncTask(WXLoadAndCacheManager manager, String url, String bundleName, WXLoadAndCacheManager.WXDownloadListener wxDownloadListener) {
+    public WXDownloadAsyncTask(WXLoadAndCacheManager manager, String url, String bundleName, String bundleMd5, WXLoadAndCacheManager.WXDownloadListener wxDownloadListener) {
         this.url = url;
         this.bundleName = bundleName;
         this.wxDownloadListener = wxDownloadListener;
         this.manager = manager;
+        this.bundleMd5 = bundleMd5;
     }
 
     public void executeOnMyExecutor(Void... params) {
@@ -101,18 +104,26 @@ public class WXDownloadAsyncTask extends AsyncTask<Void, Void, String> {
         if (f.exists()) {
             f.delete();
         }
-        //使之在头部位置
-        manager.lruMap.put(f.getAbsolutePath(), f.getAbsolutePath());
-        manager.lruMap.get(f.getAbsolutePath());
         //save
         CommonUtil.streamTofile(inputStream, f);
-        //delete不在缓存池的bundle
-        File dirFile = new File(WXEnvironment.sApplication.getCacheDir(), WEEX_CACHE_BUNDLE_PATH);
-        if (dirFile.exists() && dirFile.isDirectory()) {
-            File[] cacheFiles = dirFile.listFiles();
-            for (File cacheFile : cacheFiles) {
-                if (manager.lruMap.get(cacheFile.getAbsolutePath()) == null) {
-                    cacheFile.delete();
+        String md5 = CommonUtil.getMd5FromFile(f);
+        //验证md5
+        if (!TextUtils.isEmpty(bundleMd5) && !bundleMd5.equals(md5)) {
+            if (f.exists()) {
+                f.delete();
+            }
+        } else {
+            //使之在头部位置
+            manager.lruMap.put(f.getAbsolutePath(), f.getAbsolutePath());
+            manager.lruMap.get(f.getAbsolutePath());
+            //delete不在缓存池的bundle
+            File dirFile = new File(WXEnvironment.sApplication.getCacheDir(), WEEX_CACHE_BUNDLE_PATH);
+            if (dirFile.exists() && dirFile.isDirectory()) {
+                File[] cacheFiles = dirFile.listFiles();
+                for (File cacheFile : cacheFiles) {
+                    if (manager.lruMap.get(cacheFile.getAbsolutePath()) == null) {
+                        cacheFile.delete();
+                    }
                 }
             }
         }

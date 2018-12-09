@@ -80,8 +80,6 @@ public enum WXLoadAndCacheManager {
         if (TextUtils.isEmpty(bundleName)) {
             bundleName = "noBundleName";
         }
-        //String hostPath = mUri.split("\\?")[0];//问号分割
-        //String fileName = Base64.encodeToString(hostPath.getBytes(), Base64.NO_PADDING | Base64.NO_WRAP | Base64.URL_SAFE);
         String fileName = bundleName + "-" + URLEncoder.encode(mUri).replace("%", "-");//支持全路径,replace%,防止后面代码decode如Uri.getPath
         // put into  lru cache
         File f = new File(WXEnvironment.sApplication.getCacheDir(), WEEX_CACHE_BUNDLE_PATH + fileName + ".js");
@@ -128,8 +126,8 @@ public enum WXLoadAndCacheManager {
         return null;
     }
 
-    public void download(String url, String bundleName, WXDownloadListener wxDownloadListener) {
-        new WXDownloadAsyncTask(this, url, bundleName, wxDownloadListener).executeOnMyExecutor();
+    public void download(String url, String bundleName, String bundleMd5, WXDownloadListener wxDownloadListener) {
+        new WXDownloadAsyncTask(this, url, bundleName, bundleMd5, wxDownloadListener).executeOnMyExecutor();
     }
 
     public interface WXDownloadListener {

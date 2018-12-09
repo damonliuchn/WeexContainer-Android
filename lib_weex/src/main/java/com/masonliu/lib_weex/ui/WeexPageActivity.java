@@ -43,6 +43,7 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
     private ProgressBar mProgress;
     private String mUri;
     private String mBundleName;
+    private String mBundleMd5;
     private RefreshBroadcastReceiver mReceiver;
     private boolean renderSuccess;
     private Map<String, Object> options;
@@ -126,6 +127,8 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
 
         mUri = getIntent().getStringExtra(KEY_URI);
         mBundleName = getIntent().getStringExtra(KEY_BUNDLE_NAME);
+        mBundleMd5 = getIntent().getStringExtra(KEY_BUNDLE_MD5);
+
 
         init();
         registerBroadcastReceiver();
@@ -290,7 +293,7 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
      */
     public void refresh(String url, final String mBundleName) {
         if (url.startsWith("http")) {
-            WXLoadAndCacheManager.INSTANCE.download(url, mBundleName,
+            WXLoadAndCacheManager.INSTANCE.download(url, mBundleName, mBundleMd5,
                     new WXDownloadListener() {
 
                         @Override

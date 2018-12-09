@@ -1,6 +1,5 @@
 package com.masonliu.lib_weex.util;
 
-import android.app.Service;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
@@ -15,9 +14,12 @@ import com.masonliu.lib_weex.generated.BuildConfig;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -140,18 +142,19 @@ public class CommonUtil {
     }
 
     /**
-     //     * 获取 设备系统唯一ID
-     //     * 1、刷机或升级以后会变
-     //     * 2、相同品牌型号手机可能相同
-     //     * 3、可以根据 deviceId 、Build.BRAND、Build.MODEL 粗略判断是否是模拟器
-     //     * 模拟器deviceId一般全0，Build.BRAND一般是generic，Build.MODEL一般是sdk或google_sdk
-     //     * 4、root后的手机 用户可以随意修改deviceid 和 androidid
-     //     * 5、此方法返回一个不可靠的设备系统唯一ID
-     //     *
-     //     * @return
-     //     */
+     * //     * 获取 设备系统唯一ID
+     * //     * 1、刷机或升级以后会变
+     * //     * 2、相同品牌型号手机可能相同
+     * //     * 3、可以根据 deviceId 、Build.BRAND、Build.MODEL 粗略判断是否是模拟器
+     * //     * 模拟器deviceId一般全0，Build.BRAND一般是generic，Build.MODEL一般是sdk或google_sdk
+     * //     * 4、root后的手机 用户可以随意修改deviceid 和 androidid
+     * //     * 5、此方法返回一个不可靠的设备系统唯一ID
+     * //     *
+     * //     * @return
+     * //
+     */
     public static String getTrueDeviceId(Context context) {
-        try{
+        try {
             /**
              * 非手机设备： 如果只带有Wifi的设备或者音乐播放器没有通话的硬件功能的话就没有这个DEVICE_ID
              * bug：在少数的一些手机设备上，该实现有漏洞，会返回垃圾，如:zeros或者asterisks的产品
@@ -179,9 +182,43 @@ public class CommonUtil {
             StringBuilder sb = new StringBuilder();
             sb.append(serial).append("#").append(androidID);
             return sb.toString();
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return "";
     }
+
+    public static String getMd5FromFile(File inputFile) {
+        try {
+            MessageDigest messageDigest = MessageDigest.getInstance("MD5");
+            // 使用DigestInputStream
+            FileInputStream fileInputStream = new FileInputStream(inputFile);
+            DigestInputStream digestInputStream = new DigestInputStream(fileInputStream, messageDigest);
+            // read的过程中进行MD5处理，直到读完文件
+            byte[] buffer = new byte[BUFFER_LENGTH];
+            while (digestInputStream.read(buffer) > 0) ;
+            messageDigest = digestInputStream.getMessageDigest();
+            byte[] resultByteArray = messageDigest.digest();
+            return bytesToHexString(resultByteArray);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+
+    public static String bytesToHexString(byte[] src) {
+        StringBuilder stringBuilder = new StringBuilder("");
+        if (src == null || src.length <= 0) {
+            return null;
+        }
+        for (int i = 0; i < src.length; i++) {
+            String hv = Integer.toHexString(src[i] & 0xFF);
+            if (hv.length() < 2) {
+                stringBuilder.append(0);
+            }
+            stringBuilder.append(hv);
+        }
+        return stringBuilder.toString();
+    }
+
 }
