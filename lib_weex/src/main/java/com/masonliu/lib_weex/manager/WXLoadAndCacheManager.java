@@ -90,13 +90,16 @@ public enum WXLoadAndCacheManager {
     }
 
     public String getLastCache(final String mBundleName) {
+        if (TextUtils.isEmpty(mBundleName)) {
+            return null;
+        }
         //去缓存文件夹里找
         //去asset里找前缀为mBundleName的文件
         try {
             File[] files = new File(WXEnvironment.sApplication.getCacheDir(), WEEX_CACHE_BUNDLE_PATH).listFiles(new FileFilter() {
                 @Override
                 public boolean accept(File file) {
-                    return file.getName().startsWith(mBundleName);
+                    return file.getName().startsWith(mBundleName + "-");
                 }
             });
             if (files != null && files.length > 0) {
