@@ -9,8 +9,6 @@ import android.text.TextUtils;
 import com.masonliu.lib_weex.manager.WXCommonModuleManager;
 import com.masonliu.lib_weex.manager.WXLoadAndCacheManager;
 import com.masonliu.lib_weex.util.CommonUtil;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
 import com.taobao.weex.annotation.JSMethod;
 import com.taobao.weex.bridge.JSCallback;
 import com.taobao.weex.common.WXModule;
@@ -20,6 +18,9 @@ import java.io.FileInputStream;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
+
+import okhttp3.Request;
+import okhttp3.Response;
 
 /**
  * Created by liumeng02 on 2018/3/26.

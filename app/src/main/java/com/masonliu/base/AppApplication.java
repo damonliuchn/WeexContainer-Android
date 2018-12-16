@@ -12,7 +12,7 @@ public class AppApplication extends Application {
     public void onCreate() {
         super.onCreate();
         SharedPre.init(this);
-        WeexUtil.setDebugable(false);//可以在debug环境下单独测试WeexContainer release功能是否可用
-        WeexUtil.init(this, false, BuildConfig.BUILD_IP, null);
+        //WeexUtil.setDebugable(false);//可以在debug环境下单独测试WeexContainer release功能是否可用
+        WeexUtil.init(this, true, BuildConfig.BUILD_IP, null);
     }
 }

@@ -6,13 +6,14 @@ import android.text.TextUtils;
 
 import com.masonliu.lib_weex.manager.WXLoadAndCacheManager;
 import com.masonliu.lib_weex.util.CommonUtil;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
 import com.taobao.weex.WXEnvironment;
 
 import java.io.File;
 import java.io.InputStream;
 import java.util.concurrent.Executors;
+
+import okhttp3.Request;
+import okhttp3.Response;
 
 import static com.masonliu.lib_weex.manager.WXLoadAndCacheManager.WEEX_CACHE_BUNDLE_PATH;
 

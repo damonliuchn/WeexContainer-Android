@@ -3,7 +3,6 @@ package com.masonliu.lib_weex.manager;
 import android.text.TextUtils;
 
 import com.masonliu.lib_weex.task.WXDownloadAsyncTask;
-import com.squareup.okhttp.OkHttpClient;
 import com.taobao.weex.WXEnvironment;
 
 import java.io.File;
@@ -14,6 +13,8 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
+import okhttp3.OkHttpClient;
 
 /**
  * Created by liumeng02 on 2018/1/23.
@@ -39,10 +40,11 @@ public enum WXLoadAndCacheManager {
 
     public OkHttpClient getOkHttpClient() {
         if (okHttpClient == null) {
-            okHttpClient = new OkHttpClient();
-            okHttpClient.setConnectTimeout(20, TimeUnit.SECONDS);
-            okHttpClient.setWriteTimeout(20, TimeUnit.SECONDS);
-            okHttpClient.setReadTimeout(20, TimeUnit.SECONDS);
+            OkHttpClient.Builder builder = new OkHttpClient.Builder()
+                    .connectTimeout(20, TimeUnit.SECONDS)
+                    .writeTimeout(20, TimeUnit.SECONDS)
+                    .readTimeout(20, TimeUnit.SECONDS);
+            okHttpClient = builder.build();
         }
         return okHttpClient;
     }

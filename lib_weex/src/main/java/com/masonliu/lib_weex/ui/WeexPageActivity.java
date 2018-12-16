@@ -21,7 +21,6 @@ import com.masonliu.lib_weex.manager.WXURLManager;
 import com.masonliu.lib_weex.util.CommonUtil;
 import com.taobao.weex.IWXRenderListener;
 import com.taobao.weex.WXSDKInstance;
-import com.taobao.weex.common.IWXDebugProxy;
 import com.taobao.weex.common.WXRenderStrategy;
 
 import java.io.InputStream;
@@ -163,8 +162,8 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
     private void registerBroadcastReceiver() {
         mReceiver = new RefreshBroadcastReceiver();
         IntentFilter filter = new IntentFilter();
-        filter.addAction(IWXDebugProxy.ACTION_DEBUG_INSTANCE_REFRESH);
-        filter.addAction(IWXDebugProxy.ACTION_INSTANCE_RELOAD);
+        filter.addAction(WXSDKInstance.ACTION_DEBUG_INSTANCE_REFRESH);
+        filter.addAction(WXSDKInstance.ACTION_INSTANCE_RELOAD);
         registerReceiver(mReceiver, filter);
     }
 
@@ -341,8 +340,8 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
     public class RefreshBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (IWXDebugProxy.ACTION_INSTANCE_RELOAD.equals(intent.getAction()) ||
-                    IWXDebugProxy.ACTION_DEBUG_INSTANCE_REFRESH.equals(intent.getAction())) {
+            if (WXSDKInstance.ACTION_INSTANCE_RELOAD.equals(intent.getAction()) ||
+                    WXSDKInstance.ACTION_DEBUG_INSTANCE_REFRESH.equals(intent.getAction())) {
                 init();
             }
         }

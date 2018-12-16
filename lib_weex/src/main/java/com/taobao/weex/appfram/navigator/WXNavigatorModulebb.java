@@ -24,7 +24,7 @@ import com.taobao.weex.bridge.WXBridgeManager;
 import com.taobao.weex.common.WXModule;
 import com.taobao.weex.utils.WXLogUtils;
 
-public class WXNavigatorModule extends WXModule {
+public class WXNavigatorModulebb extends WXModule {
     public static final String MSG_SUCCESS = "WX_SUCCESS";
     public static final String MSG_FAILED = "WX_FAILED";
     public static final String MSG_PARAM_ERR = "WX_PARAM_ERR";
@@ -35,7 +35,7 @@ public class WXNavigatorModule extends WXModule {
     private static final String WEEX = "com.taobao.android.intent.category.WEEX";
     private static final String URL = "url";
 
-    public WXNavigatorModule() {
+    public WXNavigatorModulebb() {
     }
 
     @JSMethod(

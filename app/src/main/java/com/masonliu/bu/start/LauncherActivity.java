@@ -9,7 +9,10 @@ import android.widget.EditText;
 
 import com.masonliu.base.SharedPre;
 import com.masonliu.lib_weex.ui.WeexPageActivity;
+import com.masonliu.lib_weex.util.WeexUtil;
+import com.masonliu.weex_container_demo.BuildConfig;
 import com.masonliu.weex_container_demo.R;
+import com.taobao.weex.WXSDKEngine;
 
 
 public class LauncherActivity extends Activity {
@@ -40,10 +43,17 @@ public class LauncherActivity extends Activity {
                 SharedPre.set("URL", editable.toString());
             }
         });
+
+
+//        WeexUtil.initDebugEnvironment(true,BuildConfig.BUILD_IP);
+//        WXSDKEngine.reload();
     }
 
 
     public void open(View view) {
+
+        //WeexUtil.initDebugEnvironment(true, BuildConfig.BUILD_IP);
+
         WeexPageActivity.startFrom(this,
                 //"file://local/weex/WeexHomeView.js",
                 SharedPre.getString("URL", DEFAULT_VALUE),
