@@ -31,7 +31,7 @@ apply plugin: 'maven'
 //将aar发布到maven
 apply plugin: 'gmaven'
 
-def coreAarFile = file('libs/weex_sdk-0.18.0.aar')
+def coreAarFile = file('libs/weex_sdk-0.20.0.2.aar')
 artifacts {
     archives coreAarFile
 }
@@ -46,6 +46,6 @@ gmavenGitRepo {
 gmavenLibrary {
     group = 'com.masonliu'
     artifactId = 'weex_sdk_modify'
-    version = '0.18.7.1'
+    version = '0.20.0.2'
     description = "description"
 }

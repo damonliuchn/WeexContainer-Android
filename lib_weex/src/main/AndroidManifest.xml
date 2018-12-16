@@ -13,7 +13,20 @@
 
     <application>
         <activity
-            android:name="com.masonliu.lib_weex.ui.WeexPageActivity">
+            android:name="com.masonliu.lib_weex.ui.WeexPageActivity"
+            >
+            <intent-filter>
+                <action android:name="com.taobao.android.intent.action.WEEX"/>
+
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="com.taobao.android.intent.category.WEEX"/>
+                <action android:name="android.intent.action.VIEW"/>
+
+                <data android:scheme="http"/>
+                <data android:scheme="https"/>
+                <data android:scheme="file"/>
+                <data android:scheme="wxpage" />
+            </intent-filter>
         </activity>
     </application>
 
