@@ -4,9 +4,9 @@ import android.app.Application;
 import android.support.annotation.Nullable;
 
 import com.masonliu.lib_weex.manager.WXCommonModuleManager;
+import com.masonliu.lib_weex.manager.WXImgLoaderAdapter;
 import com.masonliu.lib_weex.manager.WXLoadAndCacheManager;
 import com.masonliu.lib_weex.manager.WXURLManager;
-import com.masonliu.lib_weex.manager.WXImgLoaderManager;
 import com.masonliu.lib_weex.module.CommonModule;
 import com.squareup.okhttp.OkHttpClient;
 import com.taobao.weex.InitConfig;
@@ -26,8 +26,7 @@ public class WeexUtil {
             }
             //设置图片处理器
             if (iwxImgLoaderAdapter == null) {
-                WXImgLoaderManager.init(application);
-                iwxImgLoaderAdapter = new WXImgLoaderManager.WXImgLoaderAdapter();
+                iwxImgLoaderAdapter = new WXImgLoaderAdapter();
             }
             InitConfig config = new InitConfig.Builder().setImgAdapter(iwxImgLoaderAdapter).build();
             WXSDKEngine.initialize(application, config);
