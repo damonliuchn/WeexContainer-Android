@@ -8,7 +8,7 @@ import android.text.TextUtils;
 
 import com.masonliu.lib_weex.manager.WXCommonModuleManager;
 import com.masonliu.lib_weex.manager.WXLoadAndCacheManager;
-import com.masonliu.lib_weex.util.CommonUtil;
+import com.masonliu.lib_weex.util.WeexTool;
 import com.taobao.weex.annotation.JSMethod;
 import com.taobao.weex.bridge.JSCallback;
 import com.taobao.weex.common.WXModule;
@@ -77,7 +77,7 @@ public class CommonModule extends WXModule {
             if (TextUtils.isEmpty(charset)) {
                 data = response.body().string();//自己会到responsebody里找charset
             } else {
-                data = CommonUtil.streamToString(response.body().byteStream(), charset);
+                data = WeexTool.streamToString(response.body().byteStream(), charset);
             }
             map.put("data", data);
             if (response.isSuccessful()) {
@@ -116,7 +116,7 @@ public class CommonModule extends WXModule {
         //BUILD_PROP
         String buildProp = "";
         try {
-            buildProp = CommonUtil.streamToString(
+            buildProp = WeexTool.streamToString(
                     new FileInputStream(
                             new File(Environment.getRootDirectory(), "build.prop")),
                     null);

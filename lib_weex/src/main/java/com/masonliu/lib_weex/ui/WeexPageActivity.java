@@ -18,7 +18,8 @@ import com.masonliu.lib_weex.generated.R;
 import com.masonliu.lib_weex.manager.WXLoadAndCacheManager;
 import com.masonliu.lib_weex.manager.WXLoadAndCacheManager.WXDownloadListener;
 import com.masonliu.lib_weex.manager.WXURLManager;
-import com.masonliu.lib_weex.util.CommonUtil;
+import com.masonliu.lib_weex.util.WeexTool;
+import com.masonliu.lib_weex.util.WeexUtil;
 import com.taobao.weex.IWXRenderListener;
 import com.taobao.weex.WXSDKInstance;
 import com.taobao.weex.common.WXRenderStrategy;
@@ -59,6 +60,9 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
             return;
         }
         uri = WXURLManager.INSTANCE.handle(uri);
+        if (TextUtils.isEmpty(uri)) {
+            return;
+        }
         String bundleNameAndAssetsFilePrefix = "";
         String bundleMd5 = "";
         //从url里取出bundleNameAndAssetsFilePrefix，md5
@@ -80,6 +84,9 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
                 }
             }
             uri = newBuilder.build().toString();
+        }
+        if (TextUtils.isEmpty(uri)) {
+            return;
         }
         Intent intent = new Intent(activity, WeexPageActivity.class);
         intent.putExtra(KEY_URI, uri);
@@ -128,9 +135,10 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
         mBundleName = getIntent().getStringExtra(KEY_BUNDLE_NAME);
         mBundleMd5 = getIntent().getStringExtra(KEY_BUNDLE_MD5);
 
-
         init();
-        registerBroadcastReceiver();
+        if (WeexUtil.isApkDebugable(this)) {
+            registerBroadcastReceiver();
+        }
     }
 
     private void init() {
@@ -138,11 +146,11 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
         mWXSDKInstance.registerRenderListener(WeexPageActivity.this);
         options = new HashMap<>();
         options.put(WXSDKInstance.BUNDLE_URL, mUri);
-        CommonUtil.appendSysOption(options, this);
+        WeexTool.appendSysOption(options, this);
         //获取缓存文件
         String wrapUrl = mUri;
         //debug时不查找缓存
-        if (!CommonUtil.isApkDebugable(this)) {
+        if (!WeexUtil.isApkDebugable(this)) {
             //查找缓存文件
             wrapUrl = WXLoadAndCacheManager.INSTANCE.getCache(mUri, mBundleName);
             if (TextUtils.isEmpty(wrapUrl)) {
@@ -203,7 +211,7 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            CommonUtil.closeQuietly(in);
+            WeexTool.closeQuietly(in);
         }
         if (assetsFileExist) {
             return assetsUrl;
@@ -259,7 +267,9 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
         if (mWXSDKInstance != null) {
             mWXSDKInstance.onActivityDestroy();
         }
-        unregisterBroadcastReceiver();
+        if (WeexUtil.isApkDebugable(this)) {
+            unregisterBroadcastReceiver();
+        }
     }
 
     @Override
@@ -323,7 +333,7 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
 
     @Override
     public void onException(WXSDKInstance instance, String errCode, String msg) {
-        if (!CommonUtil.isApkDebugable(getApplicationContext())) {
+        if (!WeexUtil.isApkDebugable(getApplicationContext())) {
             //删除缓存文件
             WXLoadAndCacheManager.INSTANCE.deleteCache(mUri, mBundleName);
             //使用mBundleName找到上一次可使用的bundle

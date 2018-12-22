@@ -1,6 +1,7 @@
 package com.masonliu.lib_weex.util;
 
 import android.app.Application;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Looper;
 import android.support.annotation.Nullable;
@@ -38,7 +39,7 @@ public class WeexUtil {
                 e.printStackTrace();
             }
             //设置Debugger
-            if (CommonUtil.isApkDebugable(application) && connectDebuggerOnAppDebug) {
+            if (WeexTool.isApkDebugable(application) && connectDebuggerOnAppDebug) {
                 new android.os.Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -73,13 +74,21 @@ public class WeexUtil {
     }
 
     public static void setDebugable(boolean isDebug) {
-        CommonUtil.setIsApkDebug(isDebug);
+        WeexTool.setIsApkDebug(isDebug);
+    }
+
+    /**
+     * debug时不使用缓存
+     *
+     * @param context
+     */
+    public static boolean isApkDebugable(Context context) {
+        return WeexTool.isApkDebugable(context);
     }
 
     public static void setURLIntercepter(WXURLManager.WXURLHandler handler) {
         WXURLManager.INSTANCE.setHandler(handler);
     }
-
 
     public static void setCommonModuleHandler(WXCommonModuleManager.WXCommonModuleHandler handler) {
         WXCommonModuleManager.INSTANCE.setHandler(handler);

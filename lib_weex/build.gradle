@@ -1,8 +1,8 @@
 apply plugin: 'com.android.library'
 apply from: '../lib_weex/weex_android.gradle'
 ext {
-    libWeexVersionCode = 16
-    libWeexVersionName = "1.1.6"
+    libWeexVersionCode = 17
+    libWeexVersionName = "1.1.7"
 }
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion

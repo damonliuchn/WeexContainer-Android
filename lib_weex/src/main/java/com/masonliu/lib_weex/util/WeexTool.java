@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-public class CommonUtil {
+public class WeexTool {
 
     private static final int BUFFER_LENGTH = 256;
     private static final int CHAR_SIZE = 128;
@@ -32,10 +32,10 @@ public class CommonUtil {
     private static Boolean isApkDebug;
     private static Map<String, Object> sysOptionMap;
 
-    private CommonUtil() {
+    private WeexTool() {
     }
 
-    public static boolean isApkDebugable(Context context) {
+    static boolean isApkDebugable(Context context) {
         if (isApkDebug == null) {
             try {
                 ApplicationInfo info = context.getApplicationInfo();
@@ -50,7 +50,7 @@ public class CommonUtil {
     }
 
     public static void setIsApkDebug(Boolean isApkDebug) {
-        CommonUtil.isApkDebug = isApkDebug;
+        WeexTool.isApkDebug = isApkDebug;
     }
 
     public static void closeQuietly(Closeable closeable) {
@@ -106,7 +106,7 @@ public class CommonUtil {
     public static void appendSysOption(Map<String, Object> map, Context context) {
         if (sysOptionMap == null) {
             sysOptionMap = new HashMap<>();
-            sysOptionMap.put("debug", CommonUtil.isApkDebugable(context));
+            sysOptionMap.put("debug", WeexTool.isApkDebugable(context));
             sysOptionMap.put("versionCode", getVersionCode(context));
             sysOptionMap.put("weexcVersionCode", BuildConfig.VERSION_CODE);
             sysOptionMap.put("weexcVersionName", BuildConfig.VERSION_NAME);

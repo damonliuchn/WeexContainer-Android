@@ -5,7 +5,7 @@ import android.os.Build;
 import android.text.TextUtils;
 
 import com.masonliu.lib_weex.manager.WXLoadAndCacheManager;
-import com.masonliu.lib_weex.util.CommonUtil;
+import com.masonliu.lib_weex.util.WeexTool;
 import com.taobao.weex.WXEnvironment;
 
 import java.io.File;
@@ -95,7 +95,7 @@ public class WXDownloadAsyncTask extends AsyncTask<Void, Void, String> {
             return inputStream;
         } catch (Exception e) {
             e.printStackTrace();
-            CommonUtil.closeQuietly(inputStream);
+            WeexTool.closeQuietly(inputStream);
         }
         return null;
     }
@@ -106,8 +106,8 @@ public class WXDownloadAsyncTask extends AsyncTask<Void, Void, String> {
             f.delete();
         }
         //save
-        CommonUtil.streamTofile(inputStream, f);
-        String md5 = CommonUtil.getMd5FromFile(f);
+        WeexTool.streamTofile(inputStream, f);
+        String md5 = WeexTool.getMd5FromFile(f);
         //验证md5
         if (!TextUtils.isEmpty(bundleMd5) && !bundleMd5.equals(md5)) {
             if (f.exists()) {
