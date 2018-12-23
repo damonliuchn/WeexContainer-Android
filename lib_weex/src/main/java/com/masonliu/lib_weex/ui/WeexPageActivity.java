@@ -56,10 +56,11 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
      *                 http地址： http://
      */
     public static void startFromWeex(Context activity, String uri, String instanceId) {
-        if (TextUtils.isEmpty(uri)) {
-            return;
+        try {
+            uri = WXURLManager.INSTANCE.handle(uri);
+        } catch (Throwable t) {
+            t.printStackTrace();
         }
-        uri = WXURLManager.INSTANCE.handle(uri);
         if (TextUtils.isEmpty(uri)) {
             return;
         }
@@ -85,14 +86,10 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
             }
             uri = newBuilder.build().toString();
         }
-        if (TextUtils.isEmpty(uri)) {
-            return;
-        }
         Intent intent = new Intent(activity, WeexPageActivity.class);
         intent.putExtra(KEY_URI, uri);
         intent.putExtra(KEY_BUNDLE_NAME, bundleNameAndAssetsFilePrefix);
         intent.putExtra(KEY_BUNDLE_MD5, bundleMd5);
-
         activity.startActivity(intent);
     }
 
@@ -130,10 +127,15 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
         setContentView(R.layout.weexc_activity_container);
         mContainer = findViewById(R.id.weexc_container);
         mProgress = findViewById(R.id.weexc_progress);
-
-        mUri = getIntent().getStringExtra(KEY_URI);
-        mBundleName = getIntent().getStringExtra(KEY_BUNDLE_NAME);
-        mBundleMd5 = getIntent().getStringExtra(KEY_BUNDLE_MD5);
+        if (savedInstanceState != null) {
+            mUri = savedInstanceState.getString(KEY_URI);
+            mBundleName = savedInstanceState.getString(KEY_BUNDLE_NAME);
+            mBundleMd5 = savedInstanceState.getString(KEY_BUNDLE_MD5);
+        } else {
+            mUri = getIntent().getStringExtra(KEY_URI);
+            mBundleName = getIntent().getStringExtra(KEY_BUNDLE_NAME);
+            mBundleMd5 = getIntent().getStringExtra(KEY_BUNDLE_MD5);
+        }
 
         init();
         if (WeexUtil.isApkDebugable(this)) {
@@ -346,6 +348,14 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
         }
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        //存值
+        outState.putString(KEY_URI, mUri);
+        outState.putString(KEY_BUNDLE_NAME, mBundleName);
+        outState.putString(KEY_BUNDLE_MD5, mBundleMd5);
+    }
 
     public class RefreshBroadcastReceiver extends BroadcastReceiver {
         @Override

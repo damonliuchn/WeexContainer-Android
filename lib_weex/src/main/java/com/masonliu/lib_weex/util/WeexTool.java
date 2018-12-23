@@ -153,7 +153,7 @@ public class WeexTool {
      * //     * @return
      * //
      */
-    public static String getTrueDeviceId(Context context) {
+    private static String getTrueDeviceId(Context context) {
         try {
             /**
              * 非手机设备： 如果只带有Wifi的设备或者音乐播放器没有通话的硬件功能的话就没有这个DEVICE_ID
@@ -206,7 +206,7 @@ public class WeexTool {
         return "";
     }
 
-    public static String bytesToHexString(byte[] src) {
+    private static String bytesToHexString(byte[] src) {
         StringBuilder stringBuilder = new StringBuilder("");
         if (src == null || src.length <= 0) {
             return null;
