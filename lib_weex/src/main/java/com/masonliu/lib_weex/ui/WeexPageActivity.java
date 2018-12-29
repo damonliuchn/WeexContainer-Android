@@ -136,7 +136,10 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
             mBundleName = getIntent().getStringExtra(KEY_BUNDLE_NAME);
             mBundleMd5 = getIntent().getStringExtra(KEY_BUNDLE_MD5);
         }
-
+        if (TextUtils.isEmpty(mUri)) {
+            finish();
+            return;
+        }
         init();
         if (WeexUtil.isApkDebugable(this)) {
             registerBroadcastReceiver();
