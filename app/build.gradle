@@ -11,7 +11,7 @@ android {
         versionName "1.0"
         buildConfigField("String", "BUILD_IP", buildIP())
         ndk{
-            abiFilters "armeabi"
+            abiFilters "armeabi","armeabi-v7a","x86"
         }
         //react-native只提供了armeabi-v7a及以上，没有提供armeabi 不优雅的解决方法：https://juejin.im/entry/582303a4bf22ec0068ed7f48
         //https://www.diycode.cc/topics/691
