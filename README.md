@@ -9,6 +9,8 @@ WeexPageActivity.startFrom(
                 null);
 ```
 
+# 注意：目前测试weex最新版只支持Android4.4以及以上版本
+
 # 一、Demo：
 DemoApk：[DemoApk](https://raw.githubusercontent.com/MasonLiuChn/WeexContainer-Android/master/app/doc/WeexContainerDemo.apk)
 
