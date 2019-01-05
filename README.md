@@ -172,7 +172,7 @@ repositories {
     }
 }
 dependencies {
-	compile 'com.masonliu:weex-container:1.1.8'
+	compile 'com.masonliu:weex-container:1.1.9'
 }
 ```
 ```java

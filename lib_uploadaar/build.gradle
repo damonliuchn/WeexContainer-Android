@@ -46,6 +46,6 @@ gmavenGitRepo {
 gmavenLibrary {
     group = 'com.masonliu'
     artifactId = 'weex_sdk_modify'
-    version = '0.20.3.0-beta'
+    version = '0.20.3.1-beta'
     description = "description"
 }
