@@ -16,6 +16,8 @@ import com.taobao.weex.common.WXModule;
 import java.io.File;
 import java.io.FileInputStream;
 import java.lang.reflect.Field;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -143,6 +145,38 @@ public class CommonModule extends WXModule {
             e.printStackTrace();
         }
         map.put("androidBuildClass", buildClass);
+        callback.invoke(map);
+    }
+
+    @JSMethod(uiThread = false)
+    public void urlEncodeGBK(String string, JSCallback callback) {
+        Map<String, Object> map = new HashMap<>();
+        String result = "";
+        try {
+            result = URLEncoder.encode(string, "GBK");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (result == null) {
+            result = "";
+        }
+        map.put("result", result);
+        callback.invoke(map);
+    }
+
+    @JSMethod(uiThread = false)
+    public void urlDecodeGBK(String string, JSCallback callback) {
+        Map<String, Object> map = new HashMap<>();
+        String result = "";
+        try {
+            result = URLDecoder.decode(string, "GBK");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (result == null) {
+            result = "";
+        }
+        map.put("result", result);
         callback.invoke(map);
     }
 }

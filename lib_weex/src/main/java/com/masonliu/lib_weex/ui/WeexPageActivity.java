@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.masonliu.lib_weex.generated.R;
 import com.masonliu.lib_weex.manager.WXLoadAndCacheManager;
@@ -345,6 +346,10 @@ public class WeexPageActivity extends AppCompatActivity implements IWXRenderList
             String lastCachePath = WXLoadAndCacheManager.INSTANCE.getLastCache(mBundleName);
             if (!TextUtils.isEmpty(lastCachePath)) {
                 mUri = lastCachePath;
+            } else if ("-1000".equals(errCode)) {
+                Toast.makeText(this, "页面加载失败", Toast.LENGTH_SHORT).show();
+                finish();
+                return;
             }
             //重新加载
             init();
